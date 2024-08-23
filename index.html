@@ -7,7 +7,6 @@
 	
 <button id="audio_to_frequency_domain" onclick="audio_to_frequency_domain()" style="display:block;">audio_to_frequency_domain</button>
 
-<button id="audio_to_spectrogram" onclick="audio_to_spectrogram()" style="display:block;">audio_to_spectrogram</button>
   
 <div id="data_display" style="display:block; text-align: left; width: 600px;">
 
@@ -20,6 +19,8 @@
 <script src='https://d3js.org/d3.v7.min.js'></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
 
 <script>
 
@@ -67,7 +68,7 @@ async function audio_to_timeseries() {
 	const normalArray_normalized = await decodeAudioData_from_binaryString_to_uint8Array(binaryString);
 	const t0 = Array.from({ length: normalArray_normalized.length }, (_, i) => i * audio_information.time_sample_rate_OR_timePeriod);
 	
-	await plot_line_graph_dataObject(t0, normalArray_normalized, "Timeseries: both channels");
+	// await plot_line_graph_dataObject(t0, normalArray_normalized, "Timeseries: both channels");
 	
 	// --------------------
 
@@ -79,8 +80,8 @@ async function audio_to_timeseries() {
 
 	const t1 = Array.from({ length: normalArray_normalized.length }, (_, i) => i * audio_information.time_sample_rate_OR_timePeriod);
 
-	await plot_line_graph_dataObject(t1, channel1, "Timeseries: channel 1");
-	await plot_line_graph_dataObject(t1, channel2, "Timeseries: channel 2");
+	// await plot_line_graph_dataObject(t1, channel1, "Timeseries: channel 1");
+	// await plot_line_graph_dataObject(t1, channel2, "Timeseries: channel 2");
 
 	// --------------------
 
@@ -88,7 +89,8 @@ async function audio_to_timeseries() {
 	const x_avg = await channel1.map((val, ind) => { return (val + channel2.at(ind))/2; });
 	console.log('x_avg.length : ', x_avg.length);
 
-	await plot_line_graph_dataObject(t1, x_avg, "Timeseries: channels averaged");
+	// await plot_line_graph_dataObject(t1, x_avg, "Timeseries: channels averaged");
+	await plotly_line_chart(t1, x_avg, "Timeseries: channels averaged", "Time (s)", "Audio amplitude");
 
 	return [t1, x_avg];
 }
@@ -117,12 +119,14 @@ async function audio_to_frequency_domain() {
 
 	// --------------------
 
-	await plot_line_graph_dataObject(f, freq_response1_js, "Frequency response tf: Hz");
+	// await plot_line_graph_dataObject(f, freq_response1_js, "Frequency response tf: Hz");
+	await plotly_line_chart(f, freq_response1_js, "Frequency response tf: Hz", "Frequency (Hz)", "Time series");
 
 	// --------------------
   
-  const freq_response1_js_db = freq_response1_js.map((val, ind) => { return 20 * Math.log10(val); });
-	await plot_line_graph_dataObject(f, freq_response1_js_db, "Frequency response tf: decibels");
+  	const freq_response1_js_db = freq_response1_js.map((val, ind) => { return 20 * Math.log10(val); });
+	// await plot_line_graph_dataObject(f, freq_response1_js_db, "Frequency response tf: decibels");
+	await plotly_line_chart(f, freq_response1_js_db, "Frequency response tf: decibels", "Frequency (dB)", "Time series");
 
 	// --------------------
 	
@@ -130,92 +134,28 @@ async function audio_to_frequency_domain() {
 
 // -----------------------------------------------
 
-async function audio_to_spectrogram() {
+
 	
-	const [t1, x_avg] = await audio_to_timeseries();
+
+
+
+
+
+
+
+
+
+
+
+async function plotly_line_chart(x, y, title_text, x_text, y_text) {
+        // https://plotly.com/javascript/getting-started/
+	const xValue = [...Array(x.length).keys()].map((x) => x);
+	var yValue = y;
 	
-	// --------------------
-
-
-  // Way 0: Following calculation from python example
-	// Calculate spectrogram
-	var frameLength = 255;  // fftSize or nfft, Length of each window/frame segment - frequency data will be binned by nfft/2 
-	var frameStep = 128;  // The number of samples to shift between frames.
-  var fftLength = x_avg.length;  // The length of the FFT used for the STFT.
-  var windowFn = tf.signal.hann_window; // The window function to apply to each frame before computing the FFT; to smooth the data
-
-    
-	// Convert the waveform to a spectrogram using the Short-Time Fourier Transform (STFT)
-  var spectrogram =tf.signal.stft(x_avg, frameLength, frameStep, fftLength, windowFn);
-	console.log('spectrogram : ', spectrogram);
-	// dtype: "complex64"
-	// shape: Array [ 0, 129 ]
-	// strides: Array [ 129 ]
-
-	// Obtain the magnitude of the STFT (dtype: "float32")
-	spectrogram = tf.abs(spectrogram);
-	console.log('spectrogram : ', spectrogram);
-	// dtype: "float32"
-	// shape: Array [0, 129]
-	// strides: Array [ 129 ]
-
-	// Add a `channels` dimension, so that the spectrogram can be used
-	// as image-like input data with convolution layers (which expect
-	// shape (`batch_size`, `height`, `width`, `channels`).
-      
-	// Make a 1D array
-  // spectrogram = tf.tensor1d(spectrogram);
-  
-	// Add an extra-dimension to view the results as an image
-	spectrogram = spectrogram.expandDims(-1);
-	console.log('spectrogram : ', spectrogram);
-	// dtype: "float32"
-	// shape: Array(3) [ 1, 0, 129 ]
-	// strides: Array [ 0, 129 ]
-
-
-	const spectrogramArray = spectrogram.arraySync();
-
-	// --------------------
-
-	// Plot 3D data on canvas
-	var w = frameLength;
-	const ctx = await create_dynamic_canvasElement(w);
-	
-	// Manipulate image data, change the alpha component
-	// Way 0: use the 4D data array
-	let imageDataArray = new Uint8ClampedArray(w * w * 4);
-	for (let i = 0; i < w * w; i++) {
-	     let value = spectrogram.dataSync()[i];
-	     imageDataArray[i * 4] = value > 0.5 ? 255 : 0; // Red component
-	     imageDataArray[i * 4 + 1] = value > 0.5 ? 255 : 0; // Green component
-	     imageDataArray[i * 4 + 2] = value > 0.5 ? 255 : 0; // Blue component
-	     imageDataArray[i * 4 + 3] = 255; // Alpha component, set to 255 to make it fully opaque
-	}
-
-	// Print the manipulated image data on another canvas
-	let imageData = new ImageData(imageDataArray, w, w);
-	
-	// Draw the image data onto the canvas
-	ctx.putImageData(imageData, 0, 0);
+        const trace_items = { x: xValue, y: yValue, mode: 'markers', type: 'line' };
+        const layout = {title: title_text, xaxis: {title: x_text}, yaxis: {title: y_text} };
+        Plotly.newPlot("line_plot", [trace_items], layout );
 }
-  
-// -----------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
 
 // -----------------------------------------------
 	
@@ -250,11 +190,11 @@ async function plot_line_graph_dataObject(x, y, title_text) {
 		.attr("height", height);
 
         const x_scale = d3.scaleLinear()
-            .domain([margin.right, d3.max(dataObject, d => d.x)], [margin.left, width - margin.right])
+            .domain([0, d3.max(dataObject, d => d.x)], [margin.left, width - margin.right])
             .range([0, width]);
 
         const y_scale = d3.scaleLinear()
-            .domain([margin.bottom, d3.max(dataObject, d => d.y)], [height - margin.bottom, margin.top])
+            .domain([0, d3.max(dataObject, d => d.y)], [height - margin.bottom, margin.top])
             .range([height, 0]);
 
         const line = d3.line()
