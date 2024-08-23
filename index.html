@@ -154,7 +154,7 @@ async function plotly_line_chart(x, y, title_text, x_text, y_text) {
 	
         const trace_items = { x: xValue, y: yValue, mode: 'markers', type: 'line' };
         const layout = {title: title_text, xaxis: {title: x_text}, yaxis: {title: y_text} };
-        Plotly.newPlot("line_plot", [trace_items], layout );
+        Plotly.newPlot("data_display", [trace_items], layout );
 }
 
 // -----------------------------------------------
