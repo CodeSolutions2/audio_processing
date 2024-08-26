@@ -154,7 +154,7 @@ async function audio_to_frequency_domain() {
 
 	// remove last value, the zero
 	negative_part_f.pop();
-	const f_correct_order = negative_part_f.concat(positive_part_f);
+	var f_correct_order = negative_part_f.concat(positive_part_f);
 
 	// Add one value on the end to make f the same length as magnitude and phase
 	f_correct_order = f_correct_order.concat((2 * Math.PI * N/2)/N); // it reduces to PI, but for clarity of how it is obtained the entire equation is written
