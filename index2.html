@@ -113,13 +113,13 @@ async function audio_to_frequency_domain() {
 	// --------------------
 
 	// Magnitude of frequency response
-	const Xn_mag = tf.real(freq_response).abs();
+	var Xn_mag = tf.real(freq_response).abs();
 
 	// Convert to JavaScript
 	Xn_mag = Xn_mag.arraySync();
 
 	// Phase of frequency response
-	const Xn_phase = tf.imag(freq_response);
+	var Xn_phase = tf.imag(freq_response);
 
 	// Convert to JavaScript
 	Xn_phase = Xn_phase.arraySync();
