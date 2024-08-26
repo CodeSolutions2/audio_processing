@@ -286,7 +286,7 @@ async function audio_to_spectrogram() {
 	// Way 0: use the 4D data array
 	let imageDataArray = new Uint8ClampedArray(w * w * 4);
 	for (let i = 0; i < w * w; i++) {
-	     let value = spectrogram.dataSync()[i];
+	     let value = spectrogramArray.dataSync()[i];
 	     imageDataArray[i * 4] = value > 0.5 ? 255 : 0; // Red component
 	     imageDataArray[i * 4 + 1] = value > 0.5 ? 255 : 0; // Green component
 	     imageDataArray[i * 4 + 2] = value > 0.5 ? 255 : 0; // Blue component
