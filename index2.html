@@ -122,6 +122,8 @@ async function audio_to_frequency_domain() {
 	const f = Array.from({ length: freq_response.shape }, (_, i) => (i-1) * 2 * Math.PI * 1/audio_information.time_sample_rate_OR_timePeriod);
 	// console.log('f.length : ', f.length);
 
+	const N = f.length;
+	
 	// --------------------
 
 	// (Optional) Put the frequency response in the correct order : fft gives the result on a circle but mapped to a line it give the negative part first and then the positive part.
