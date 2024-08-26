@@ -232,12 +232,10 @@ async function audio_to_spectrogram() {
 		// dtype: "float32"
 		// shape: Array [0, 129]
 		// strides: Array [ 129 ]
-	
-		// Make a 1D array to remove batch dimension
-		spectrogram_height = tf.tensor1d(spectrogram_height);
 
 		// Convert to JavaScript array, to pack into a JavaScript array
 		const jsArray = spectrogram_height.arraySync();
+		console.log('jsArray: ', jsArray);
 
 		// Keep track of maximum value of frequency, to make frequency plot axis
 		if (Math.max(jsArray) > max_freq) {
