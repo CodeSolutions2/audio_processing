@@ -115,11 +115,19 @@ async function audio_to_frequency_domain() {
 	// Magnitude of frequency response
 	const Xn_mag = tf.real(freq_response).abs();
 
+	// Convert to JavaScript
+	Xn_mag = Xn_mag.arraySync();
+
 	// Phase of frequency response
 	const Xn_phase = tf.imag(freq_response);
+
+	// Convert to JavaScript
+	Xn_phase = Xn_phase.arraySync();
+
+	console.log('Xn_mag.length : ', Xn_mag.length);
   
 	// Calculate frequency: start from zero
-	const f = Array.from({ length: freq_response.shape }, (_, i) => (i-1) * 2 * Math.PI * 1/audio_information.time_sample_rate_OR_timePeriod);
+	const f = Array.from({ length: Xn_mag.length }, (_, i) => (i-1) * 2 * Math.PI * 1/audio_information.time_sample_rate_OR_timePeriod);
 	// console.log('f.length : ', f.length);
 
 	const N = f.length;
@@ -216,6 +224,7 @@ async function audio_to_spectrogram() {
 	for (var width=0; width<num_of_timeBins-1; width++) {
 		var start = width * num_of_timeBins;
 		var x_time_chunk = x_avg.slice(start, start+num_of_timeBins);
+		console.log('x_time_chunk : ', x_time_chunk);
 
 		plot_width_time.push(width);
 		
