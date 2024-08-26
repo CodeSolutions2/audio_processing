@@ -273,35 +273,7 @@ async function audio_to_spectrogram() {
 	// Desired Output: 4D Array
 	// shape (`batch_size`, `height`, `width`, `channels`)
 
-
-	const spectrogramArray = spec_batch_height_width_channels4d.arraySync();
-
 	// --------------------
-
-	// Plot 3D data on canvas
-	var w = frameLength;
-	const ctx = await create_dynamic_canvasElement(w);
-	
-	// Manipulate image data, change the alpha component
-	// Way 0: use the 4D data array
-	let imageDataArray = new Uint8ClampedArray(w * w * 4);
-	for (let i = 0; i < w * w; i++) {
-	     let value = spectrogramArray.dataSync()[i];
-	     imageDataArray[i * 4] = value > 0.5 ? 255 : 0; // Red component
-	     imageDataArray[i * 4 + 1] = value > 0.5 ? 255 : 0; // Green component
-	     imageDataArray[i * 4 + 2] = value > 0.5 ? 255 : 0; // Blue component
-	     imageDataArray[i * 4 + 3] = 255; // Alpha component, set to 255 to make it fully opaque
-	}
-
-	// Print the manipulated image data on another canvas
-	let imageData = new ImageData(imageDataArray, w, w);
-	
-	// Draw the image data onto the canvas
-	ctx.putImageData(imageData, 0, 0);
-
-	// --------------------
-	
-	// OR
 
 	// Convert to JavaScript array, to pack into a JavaScript array
 	const jsArray_2d = spec_height_width2d.arraySync();
@@ -318,6 +290,31 @@ async function audio_to_spectrogram() {
 	];
 	
 	Plotly.newPlot('data_display', data);
+
+	// --------------------
+
+	// Plot 3D data on canvas
+	var w = frameLength;
+	const ctx = await create_dynamic_canvasElement(w);
+	
+	// Manipulate image data, change the alpha component
+	// Way 0: use the 4D data array
+	let imageDataArray = new Uint8ClampedArray(w * w * 4);
+	for (let i = 0; i < w * w; i++) {
+	     let value = spec_batch_height_width_channels4d.dataSync()[i];
+	     imageDataArray[i * 4] = value > 0.5 ? 255 : 0; // Red component
+	     imageDataArray[i * 4 + 1] = value > 0.5 ? 255 : 0; // Green component
+	     imageDataArray[i * 4 + 2] = value > 0.5 ? 255 : 0; // Blue component
+	     imageDataArray[i * 4 + 3] = 255; // Alpha component, set to 255 to make it fully opaque
+	}
+
+	// Print the manipulated image data on another canvas
+	let imageData = new ImageData(imageDataArray, w, w);
+	
+	// Draw the image data onto the canvas
+	ctx.putImageData(imageData, 0, 0);
+
+	// --------------------
 
 }
   
