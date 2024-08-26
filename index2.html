@@ -109,10 +109,6 @@ async function audio_to_frequency_domain() {
 	// Compute frequency response/domain
 	var freq_response = await tensorflow_FFT(x_avg);
 	console.log('freq_response : ', freq_response);
-
-	// Convert tensorflow.js object to array
-	const freq_response1_js = freq_response1.arraySync();
-	// console.log('freq_response1_js.length : ', freq_response1_js.length);
 	
 	// --------------------
 
@@ -123,7 +119,7 @@ async function audio_to_frequency_domain() {
 	const Xn_phase = tf.imag(freq_response);
   
 	// Calculate frequency: start from zero
-	const f = Array.from({ length: freq_response1_js.length }, (_, i) => (i-1) * 2 * Math.PI * 1/audio_information.time_sample_rate_OR_timePeriod);
+	const f = Array.from({ length: freq_response.shape }, (_, i) => (i-1) * 2 * Math.PI * 1/audio_information.time_sample_rate_OR_timePeriod);
 	// console.log('f.length : ', f.length);
 
 	// --------------------
