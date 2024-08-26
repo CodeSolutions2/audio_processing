@@ -186,8 +186,10 @@ async function audio_to_frequency_domain() {
 	
 }
 
+	
 // -----------------------------------------------
 
+	
 async function audio_to_spectrogram() {
 	
 	const [t1, x_avg] = await audio_to_timeseries();
@@ -201,17 +203,28 @@ async function audio_to_spectrogram() {
 	var windowFn = tf.signal.hann_window; // The window function to apply to each frame before computing the FFT; to smooth the data
 
 
-	// Spectrogram is x (time) by y (frequency), so I need to filter the signal to each width dimension
-	// Rows = y
-	for (var width=0; width<num_of_freq; width++) {
+	// Spectrogram is x (time) by y (frequency), so chunk the time series and then compute the FFT per [time series chunk]
+	
+	// Try to make up a reasonable time chuck for the length of time series data
+	const num_of_timeBins = Math.floor(x_avg.length/10); // make each time series chunk a 10% of the data length
 
-		var x_filtered = time_to_fre
+	var spec_width_height = [];
+
+	// For plotting
+	var plot_width_time = [];
+	var max_freq = 0;
+	
+	for (var width=0; width<num_of_timeBins-1; width++) {
+		var start = width * num_of_timeBins;
+		var x_time_chunk = x_avg.slice(start, start+num_of_timeBins);
+
+		plot_width_time.push(width);
 		
-		// Convert the waveform to a spectrogram using the Short-Time Fourier Transform (STFT)
-	  	var spectrogram_height = tf.signal.stft(x_filtered, frameLength, frameStep, fftLength, windowFn);
+		// Convert the [waveform chunk] to a spectrogram using the Short-Time Fourier Transform (STFT)
+	  	var spectrogram_height = tf.signal.stft(x_time_chunk, frameLength, frameStep, fftLength, windowFn);
 		// console.log('spectrogram_height : ', spectrogram_height);
 		// dtype: "complex64"
-		// shape: Array [ 0, 129 ] which corresponds to [batch_size, height]
+		// shape: Array [ 0, 129 ] which corresponds to [batch_size, height=frequency]
 		// strides: Array [ 129 ]
 	
 		// Obtain the magnitude of the STFT (dtype: "float32")
@@ -224,32 +237,38 @@ async function audio_to_spectrogram() {
 		// Make a 1D array to remove batch dimension
 		spectrogram_height = tf.tensor1d(spectrogram_height);
 
+		// Convert to JavaScript array, to pack into a JavaScript array
+		const jsArray = spectrogram_height.arraySync();
+
+		// Keep track of maximum value of frequency, to make frequency plot axis
+		if (Math.max(jsArray) > max_freq) {
+			max_freq = cur_max_fres;
+		}
+
+		spec_width_height.push(jsArray);
 	}
 
 
+	// spec_width_height should be 2D (width=time, height=frequency), so convert to 2Dtensor 
+	const spec_width_height2d = tf.tensor2d(spec_width_height);
 	
+  	// Transpose 
+	const spec_height_width2d = tf.transpose(spec_width_height2d);
 	
-  
-	
-	
-	
-
 	// Add an extra-dimension for the batch_size 
-	spectrogram = spectrogram.expandDims(0);
+	const spec_batch_height_width3d = spec_height_width2d.expandDims(0);
 
 	// Add an extra-dimension for the channel
 	// Add a `channels` dimension, so that the spectrogram can be used as image-like input data with convolution layers (which expect
-	spectrogram = spectrogram.expandDims(-1);
-	console.log('spectrogram : ', spectrogram);
-	// dtype: "float32"
-	// shape: Array(3) [ 1, 0, 129 ]
-	// strides: Array [ 0, 129 ]
+	const spec_batch_height_width_channels4d = spec_batch_height_width3d.expandDims(-1);
+	console.log('spec_batch_height_width_channels4d : ', spec_batch_height_width_channels4d);
+	
 
-	// Output: 4D Array
+	// Desired Output: 4D Array
 	// shape (`batch_size`, `height`, `width`, `channels`)
 
 
-	const spectrogramArray = spectrogram.arraySync();
+	const spectrogramArray = spec_batch_height_width_channels4d.arraySync();
 
 	// --------------------
 
@@ -273,6 +292,27 @@ async function audio_to_spectrogram() {
 	
 	// Draw the image data onto the canvas
 	ctx.putImageData(imageData, 0, 0);
+
+	// --------------------
+	
+	// OR
+
+	// Convert to JavaScript array, to pack into a JavaScript array
+	const jsArray_2d = spec_height_width2d.arraySync();
+	const y_freq = Array.from({ length: jsArray_2d.length }, (_, i) => (i-1) * max_freq/jsArray_2d.length);
+	
+	var data = [
+	  {
+	    z: jsArray_2d,
+	    x: plot_width_time,
+	    y: y_freq,
+	    type: 'heatmap',
+	    hoverongaps: false
+	  }
+	];
+	
+	Plotly.newPlot('data_display', data);
+
 }
   
 // -----------------------------------------------
