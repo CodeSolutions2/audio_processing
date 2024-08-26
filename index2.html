@@ -9,7 +9,7 @@
 
 <button id="audio_to_spectrogram" onclick="audio_to_spectrogram()" style="display:block;">audio_to_spectrogram</button>
   
-<div id="data_display" style="display:block; text-align: left; width: 600px;">
+<div id="data_display" style="display:block; text-align: left; width: 600px; height: 600px">
 
 
  
@@ -107,7 +107,8 @@ async function audio_to_frequency_domain() {
 	// --------------------
   
 	// Compute frequency response/domain
-	var freq_response1 = await tensorflow_FFT(x_avg);
+	var freq_response = await tensorflow_FFT(x_avg);
+	console.log('freq_response : ', freq_response);
 
 	// Convert tensorflow.js object to array
 	const freq_response1_js = freq_response1.arraySync();
@@ -116,10 +117,10 @@ async function audio_to_frequency_domain() {
 	// --------------------
 
 	// Magnitude of frequency response
-	const Xn_mag = tf.real(tf.tensor1d(freq_response1)).abs();
+	const Xn_mag = tf.real(freq_response).abs();
 
 	// Phase of frequency response
-	const Xn_phase = tf.imag(tf.tensor1d(freq_response1));
+	const Xn_phase = tf.imag(freq_response);
   
 	// Calculate frequency: start from zero
 	const f = Array.from({ length: freq_response1_js.length }, (_, i) => (i-1) * 2 * Math.PI * 1/audio_information.time_sample_rate_OR_timePeriod);
