@@ -115,72 +115,72 @@ async function audio_to_frequency_domain() {
 	
 	// --------------------
 
-  // Magnitude of frequency response
-  const Xn_mag = tf.real(tf.tensor1d(freq_response1)).abs();
+	// Magnitude of frequency response
+	const Xn_mag = tf.real(tf.tensor1d(freq_response1)).abs();
 
-  // Phase of frequency response
-  const Xn_phase = tf.imag(tf.tensor1d(freq_response1));
+	// Phase of frequency response
+	const Xn_phase = tf.imag(tf.tensor1d(freq_response1));
   
-  // Calculate frequency: start from zero
+	// Calculate frequency: start from zero
 	const f = Array.from({ length: freq_response1_js.length }, (_, i) => (i-1) * 2 * Math.PI * 1/audio_information.time_sample_rate_OR_timePeriod);
 	// console.log('f.length : ', f.length);
 
-  // --------------------
+	// --------------------
 
-  // (Optional) Put the frequency response in the correct order : fft gives the result on a circle but mapped to a line it give the negative part first and then the positive part.
+	// (Optional) Put the frequency response in the correct order : fft gives the result on a circle but mapped to a line it give the negative part first and then the positive part.
 
-  // Magnitude
-  const negative_part_mag = Xn_mag.slice(Math.floor(N/2), N);
-  const positive_part_mag = Xn_mag.slice(0, Math.floor(N/2));
-  const Xn_mag_correct_order = negative_part_mag.concat(positive_part_mag);
-  console.log("Xn_mag_correct_order.length: ", Xn_mag_correct_order.length);
+	// Magnitude
+	const negative_part_mag = Xn_mag.slice(Math.floor(N/2), N);
+	const positive_part_mag = Xn_mag.slice(0, Math.floor(N/2));
+	const Xn_mag_correct_order = negative_part_mag.concat(positive_part_mag);
+	console.log("Xn_mag_correct_order.length: ", Xn_mag_correct_order.length);
 
-  // Phase
-  const negative_part_phase = Xn_phase.slice(Math.floor(N/2), N);
-  const positive_part_phase = Xn_phase.slice(0, Math.floor(N/2));
-  const Xn_phase_correct_order = negative_part_phase.concat(positive_part_phase);
-  console.log("Xn_phase_correct_order.length: ", Xn_phase_correct_order.length);
+	// Phase
+	const negative_part_phase = Xn_phase.slice(Math.floor(N/2), N);
+	const positive_part_phase = Xn_phase.slice(0, Math.floor(N/2));
+	const Xn_phase_correct_order = negative_part_phase.concat(positive_part_phase);
+	console.log("Xn_phase_correct_order.length: ", Xn_phase_correct_order.length);
 
-  // frequency
-  const positive_part_f = f.slice(0, Math.floor(N/2));
-  const negative_part_f = positive_part_f.reverse();
+	// frequency
+	const positive_part_f = f.slice(0, Math.floor(N/2));
+	const negative_part_f = positive_part_f.reverse();
 
-  // remove last value, the zero
-  negative_part_f.pop();
-  const f_correct_order = negative_part_f.concat(positive_part_f);
+	// remove last value, the zero
+	negative_part_f.pop();
+	const f_correct_order = negative_part_f.concat(positive_part_f);
 
-  // Add one value on the end to make f the same length as magnitude and phase
-  f_correct_order = f_correct_order.concat((2 * Math.PI * N/2)/N); // it reduces to PI, but for clarity of how it is obtained the entire equation is written
-  console.log("f_correct_order.length: ", f_correct_order.length);
+	// Add one value on the end to make f the same length as magnitude and phase
+	f_correct_order = f_correct_order.concat((2 * Math.PI * N/2)/N); // it reduces to PI, but for clarity of how it is obtained the entire equation is written
+	console.log("f_correct_order.length: ", f_correct_order.length);
 
-  // Plot both the [negative, positive] parts of the frequency response in hertz
-  const title_text = "Frequency response in correct order: Hz";
-  const x_text_trace1 = "Frequency";
-  const y_text_trace1 = "Magnitude (Hz)";
-  const x_text_trace2 = "Frequency";
-  const y_text_trace2 = "Phase (deg)";
-  var trace1 = {x: f_correct_order, y: Xn_mag_correct_order, xaxis: x_text_trace1, yaxis: y_text_trace1, mode: 'markers', type: 'line'};
-  var trace2 = {x: f_correct_order, y: Xn_phase_correct_order, xaxis: x_text_trace2, yaxis: y_text_trace2, mode: 'markers', type: 'line'};
-  var data = [trace1, trace2];
-  var layout = {grid: {rows: 2, columns: 1, pattern: 'independent'}, title: title_text};
-  Plotly.newPlot('data_display', data, layout);
+	// Plot both the [negative, positive] parts of the frequency response in hertz
+	const title_text = "Frequency response in correct order: Hz";
+	const x_text_trace1 = "Frequency";
+	const y_text_trace1 = "Magnitude (Hz)";
+	const x_text_trace2 = "Frequency";
+	const y_text_trace2 = "Phase (deg)";
+	var trace1 = {x: f_correct_order, y: Xn_mag_correct_order, xaxis: x_text_trace1, yaxis: y_text_trace1, mode: 'markers', type: 'line'};
+	var trace2 = {x: f_correct_order, y: Xn_phase_correct_order, xaxis: x_text_trace2, yaxis: y_text_trace2, mode: 'markers', type: 'line'};
+	var data = [trace1, trace2];
+	var layout = {grid: {rows: 2, columns: 1, pattern: 'independent'}, title: title_text};
+	Plotly.newPlot('data_display', data, layout);
   
-  // --------------------
+	// --------------------
   
-  // Put the frequency response in the correct order : fft gives the result on a circle but mapped to a line it gives the negative part first and then the positive part. Only select the positive part.
-  const Xn_mag_positive_part_db = positive_part_mag.map((val, ind) => { return 20 * Math.log10(val); });
+	// Put the frequency response in the correct order : fft gives the result on a circle but mapped to a line it gives the negative part first and then the positive part. Only select the positive part.
+	const Xn_mag_positive_part_db = positive_part_mag.map((val, ind) => { return 20 * Math.log10(val); });
 
-  // Plot only positive part of frequency response in decibels
-  const title_text = "Frequency response in decibels: dB";
-  const x_text_trace1 = "Frequency";
-  const y_text_trace1 = "Magnitude (dB)";
-  const x_text_trace2 = "Frequency";
-  const y_text_trace2 = "Phase (deg)";
-  var trace1 = {x: positive_part_f, y: Xn_mag_positive_part_db, xaxis: x_text_trace1, yaxis: y_text_trace1, mode: 'markers', type: 'line'};
-  var trace2 = {x: positive_part_f, y: positive_part_phase, xaxis: x_text_trace2, yaxis: y_text_trace2, mode: 'markers', type: 'line'};
-  var data = [trace1, trace2];
-  var layout = {grid: {rows: 2, columns: 1, pattern: 'independent'}, title: title_text};
-  Plotly.newPlot('data_display', data, layout);
+	// Plot only positive part of frequency response in decibels
+	title_text = "Frequency response in decibels: dB";
+	x_text_trace1 = "Frequency";
+	y_text_trace1 = "Magnitude (dB)";
+	x_text_trace2 = "Frequency";
+	y_text_trace2 = "Phase (deg)";
+	trace1 = {x: positive_part_f, y: Xn_mag_positive_part_db, xaxis: x_text_trace1, yaxis: y_text_trace1, mode: 'markers', type: 'line'};
+	trace2 = {x: positive_part_f, y: positive_part_phase, xaxis: x_text_trace2, yaxis: y_text_trace2, mode: 'markers', type: 'line'};
+	data = [trace1, trace2];
+	layout = {grid: {rows: 2, columns: 1, pattern: 'independent'}, title: title_text};
+	Plotly.newPlot('data_display', data, layout);
   
 	// --------------------
 	
