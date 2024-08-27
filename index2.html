@@ -203,12 +203,7 @@ async function audio_to_spectrogram() {
 	
 	// --------------------
 	
-	// Calculate spectrogram
-	var frameLength = 255;  // fftSize or nfft, Length of each window/frame segment - frequency data will be binned by nfft/2 
-	var frameStep = 128;  // The number of samples to shift between frames.
-	var fftLength = x_avg.length;  // The length of the FFT used for the STFT.
-	var windowFn = tf.signal.hann_window; // The window function to apply to each frame before computing the FFT; to smooth the data
-
+	
 
 	// Spectrogram is x (time) by y (frequency), so chunk the time series and then compute the FFT per [time series chunk]
 	
@@ -217,6 +212,15 @@ async function audio_to_spectrogram() {
 	const timeBin_length = await Math.floor(x_avg.length/num_of_timeBins); // make each time series chunk a 10% of the data length
 	console.log('timeBin_length : ', timeBin_length);
 
+	
+	// Calculate spectrogram
+	var frameLength = 255;  // fftSize or nfft, Length of each window/frame segment - frequency data will be binned by nfft/2 
+	var frameStep = 128;  // The number of samples to shift between frames.
+	var fftLength = 2 * timeBin_length/255 - 128; // The length of the FFT used for the STFT.
+	console.log('fftLength : ', fftLength);
+	// var windowFn = tf.signal.hann_window; // The window function to apply to each frame before computing the FFT; to smooth the data
+
+	
 	var spec_width_height = [];
 
 	// For plotting
@@ -232,7 +236,8 @@ async function audio_to_spectrogram() {
 		plot_width_time.push(width);
 		
 		// Convert the [waveform chunk] to a spectrogram using the Short-Time Fourier Transform (STFT)
-	  	var spectrogram_height = await tf.signal.stft(x_time_chunk, frameLength, frameStep, fftLength, windowFn);
+	  	// var spectrogram_height = await tf.signal.stft(x_time_chunk, frameLength, frameStep, fftLength, windowFn);
+		var spectrogram_height = await tf.signal.stft(x_time_chunk, frameLength, frameStep);
 		// console.log('spectrogram_height : ', spectrogram_height);
 		// dtype: "complex64"
 		// shape: Array [ 0, 129 ] which corresponds to [batch_size, height=frequency]
@@ -240,7 +245,7 @@ async function audio_to_spectrogram() {
 	
 		// Obtain the magnitude of the STFT (dtype: "float32")
 		spectrogram_height = await tf.abs(spectrogram_height);
-		// console.log('spectrogram : ', spectrogram);
+		console.log('spectrogram_height : ', spectrogram_height);
 		// dtype: "float32"
 		// shape: Array [0, 129]
 		// strides: Array [ 129 ]
@@ -280,7 +285,10 @@ async function audio_to_spectrogram() {
 
 	// Convert to JavaScript array, to pack into a JavaScript array
 	const jsArray_2d = await spec_height_width2d.arraySync();
+	console.log('jsArray_2d: ', jsArray_2d);
+	
 	const y_freq = Array.from({ length: jsArray_2d.length }, (_, i) => (i-1) * max_freq/jsArray_2d.length);
+	console.log('y_freq: ', y_freq);
 	
 	var data = [
 	  {
