@@ -114,21 +114,27 @@ async function audio_to_frequency_domain() {
 
 	// Magnitude of frequency response
 	var Xn_mag = tf.real(freq_response).abs();
+	console.log('Xn_mag : ', Xn_mag);
 
 	// Convert to JavaScript
 	Xn_mag = Xn_mag.arraySync();
+	console.log('Xn_mag : ', Xn_mag);
 
+	// --------------------
+	
 	// Phase of frequency response
 	var Xn_phase = tf.imag(freq_response);
+	console.log('Xn_phase : ', Xn_phase);
 
 	// Convert to JavaScript
 	Xn_phase = Xn_phase.arraySync();
+	console.log('Xn_phase : ', Xn_phase);
 
-	console.log('Xn_mag.length : ', Xn_mag.length);
+	// --------------------
   
 	// Calculate frequency: start from zero
 	const f = Array.from({ length: Xn_mag.length }, (_, i) => (i-1) * 2 * Math.PI * 1/audio_information.time_sample_rate_OR_timePeriod);
-	// console.log('f.length : ', f.length);
+	console.log('f : ', f);
 
 	const N = f.length;
 	
@@ -237,21 +243,25 @@ async function audio_to_spectrogram() {
 		
 		// Convert the [waveform chunk] to a spectrogram using the Short-Time Fourier Transform (STFT)
 	  	// var spectrogram_height = await tf.signal.stft(x_time_chunk, frameLength, frameStep, fftLength, windowFn);
-		var spectrogram_height = await tf.signal.stft(x_time_chunk, frameLength, frameStep);
-		// console.log('spectrogram_height : ', spectrogram_height);
+		const spectrogram_batchSize_height = await tf.signal.stft(x_time_chunk, frameLength, frameStep);
+		// console.log('spectrogram_batchSize_height : ', spectrogram_batchSize_height);
 		// dtype: "complex64"
 		// shape: Array [ 0, 129 ] which corresponds to [batch_size, height=frequency]
 		// strides: Array [ 129 ]
 	
 		// Obtain the magnitude of the STFT (dtype: "float32")
-		spectrogram_height = await tf.abs(spectrogram_height);
-		console.log('spectrogram_height : ', spectrogram_height);
+		const spectrogram_mag_batchSize_height = await tf.abs(spectrogram_batchSize_height);
+		console.log('spectrogram_mag_batchSize_height : ', spectrogram_mag_batchSize_height);
 		// dtype: "float32"
 		// shape: Array [0, 129]
 		// strides: Array [ 129 ]
 
+		// Remove 0th dimension from [batch_size, height=frequency]
+		const spectrogram_mag_height = tf.squeeze(spectrogram_mag_batchSize_height, axis=0);
+		console.log('spectrogram_mag_height : ', spectrogram_mag_height);
+
 		// Convert to JavaScript array, to pack into a JavaScript array
-		const jsArray = await spectrogram_height.arraySync();
+		const jsArray = await spectrogram_mag_height.arraySync();
 		console.log('jsArray: ', jsArray);
 
 		// Keep track of maximum value of frequency, to make frequency plot axis
