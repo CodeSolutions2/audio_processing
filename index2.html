@@ -117,7 +117,7 @@ async function audio_to_frequency_domain() {
 	console.log('Xn_mag : ', Xn_mag);
 
 	// Convert to JavaScript
-	Xn_mag = Xn_mag.arraySync();
+	Xn_mag = Xn_mag.arraySync()[0];  // arraySync creates an array in an array
 	console.log('Xn_mag : ', Xn_mag);
 
 	// --------------------
@@ -127,7 +127,7 @@ async function audio_to_frequency_domain() {
 	console.log('Xn_phase : ', Xn_phase);
 
 	// Convert to JavaScript
-	Xn_phase = Xn_phase.arraySync();
+	Xn_phase = Xn_phase.arraySync()[0];  // arraySync creates an array in an array
 	console.log('Xn_phase : ', Xn_phase);
 
 	// --------------------
@@ -257,11 +257,13 @@ async function audio_to_spectrogram() {
 		// strides: Array [ 129 ]
 
 		// Remove 0th dimension from [batch_size, height=frequency]
-		const spectrogram_mag_height = tf.squeeze(spectrogram_mag_batchSize_height, axis=0);
+		// const spectrogram_mag_height = tf.squeeze(spectrogram_mag_batchSize_height, axis=0);
+		// Uncaught (in promise) Error: Can't squeeze axis 0 since its dim '0' is not 1
+		const spectrogram_mag_height = tf.tensor1d(spectrogram_mag_batchSize_height);
 		console.log('spectrogram_mag_height : ', spectrogram_mag_height);
 
 		// Convert to JavaScript array, to pack into a JavaScript array
-		const jsArray = await spectrogram_mag_height.arraySync();
+		const jsArray = await spectrogram_mag_height.arraySync()[0];  // arraySync creates an array in an array
 		console.log('jsArray: ', jsArray);
 
 		// Keep track of maximum value of frequency, to make frequency plot axis
@@ -294,7 +296,7 @@ async function audio_to_spectrogram() {
 	// --------------------
 
 	// Convert to JavaScript array, to pack into a JavaScript array
-	const jsArray_2d = await spec_height_width2d.arraySync();
+	const jsArray_2d = await spec_height_width2d.arraySync()[0];  // arraySync creates an array in an array
 	console.log('jsArray_2d: ', jsArray_2d);
 	
 	const y_freq = Array.from({ length: jsArray_2d.length }, (_, i) => (i-1) * max_freq/jsArray_2d.length);
