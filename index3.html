@@ -396,7 +396,7 @@ async function audio_to_spectrogram() {
 
 		// --------------------
 		
-		console.log('x_time_chunk.length : ', x_time_chunk.length);
+		// console.log('x_time_chunk.length : ', x_time_chunk.length); // verified that it was frameLength
 
 		// --------------------
 		
@@ -417,7 +417,7 @@ async function audio_to_spectrogram() {
 		// Convert to JavaScript
 		Xn_mag = Xn_mag.arraySync()[0];  // arraySync creates an array in an array
 		var positive_part_mag = Xn_mag.slice(0, Math.floor(Xn_mag.length/2));
-		console.log('positive_part_mag : ', positive_part_mag);
+		// console.log('positive_part_mag : ', positive_part_mag);
 
 		// positive_part_mag is an array that has length [frameLength/2 or nfft/2].
 		
@@ -457,8 +457,12 @@ async function audio_to_spectrogram() {
 	// Convert to JavaScript array, to pack into a JavaScript array
 	const jsArray_2d = await spec_height_width2d.arraySync()[0];  // arraySync creates an array in an array
 	console.log('jsArray_2d: ', jsArray_2d);
+
+	console.log('plot_width_time: ', plot_width_time);
+
+	console.log('max_freq: ', max_freq);
 	
-	const y_freq = Array.from({ length: jsArray_2d.length }, (_, i) => (i-1) * max_freq/jsArray_2d.length);
+	const y_freq = Array.from({ length: jsArray_2d.length }, (_, i) => i * max_freq/jsArray_2d.length);
 	console.log('y_freq: ', y_freq);
 	
 	var data = [
@@ -491,7 +495,7 @@ async function array_to_histogram(arr) {
 	// --------------------
 	
 	// Bin the signal 
-	var bin = 2;	// Need to know how many bins to divide each array
+	var bin = 4;	// Need to know how many bins to divide each array, tensorflow.js did bin=2
 	var histogram = [];
 	var out = arr_integer.at(0); // initialize
 	
