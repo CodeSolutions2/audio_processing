@@ -9,7 +9,7 @@
 
 <button id="audio_to_spectrogram" onclick="audio_to_spectrogram()" style="display:block;">audio_to_spectrogram</button>
   
-<div id="data_display" style="display:block; text-align: left; width: 600px; height: 600px">
+<div id="data_display_area"></div>
 
 
  
@@ -196,6 +196,7 @@ async function audio_to_frequency_domain() {
 	obj0_0.title_text = "Magnitude frequency response (Hz)";
 	obj0_0.x_text_trace = "Frequency";
 	obj0_0.y_text_trace = "Magnitude (Hz)";
+	obj0_0.str_num = 0;
 	await plotly_line_chart(obj0_0);
 	
 	// Trace 1
@@ -205,6 +206,7 @@ async function audio_to_frequency_domain() {
 	obj0_1.title_text = "Phase frequency response (deg)";
 	obj0_1.x_text_trace = "Frequency";
 	obj0_1.y_text_trace = "Phase (deg)";
+	obj0_1.str_num = 1;
 	await plotly_line_chart(obj0_1);
   
 	// --------------------
@@ -243,6 +245,7 @@ async function audio_to_frequency_domain() {
 	obj1_0.title_text = "Magnitude frequency response (decibels: dB)";
 	obj1_0.x_text_trace = "Frequency";
 	obj1_0.y_text_trace = "Magnitude (dB)";
+	obj1_0.str_num = 2;
 	await plotly_line_chart(obj1_0);
 	
 	// Trace 1
@@ -252,6 +255,7 @@ async function audio_to_frequency_domain() {
 	obj1_1.title_text = "Phase frequency response (deg)";
 	obj1_1.x_text_trace = "Frequency";
 	obj1_1.y_text_trace = "Phase (deg)";
+	obj1_1.str_num = 3;
 	await plotly_line_chart(obj1_1);
 	
 	// --------------------
@@ -265,7 +269,14 @@ async function plotly_line_subplot(obj) {
 	trace1 = {x: obj.trace1_x, y: obj.trace1_y, xaxis: obj.x_text_trace1, yaxis: obj.y_text_trace1, type: 'line'};
 	data = [trace0, trace1];
 	layout = {grid: {rows: 2, columns: 1, pattern: 'independent'}, title: obj.title_text};
-	Plotly.newPlot('data_display', data, layout);
+
+	// Create a new div element to display data on
+	const div = document.createElement('div');
+	div.id = "data_display"+obj.str_num;
+	div.style = "display:block; text-align: left; width: 600px; height: 600px";
+	document.getElementById("data_display_area").appendChild(div)
+	
+	Plotly.newPlot(div.id, data, layout);
 }
 	
 // -----------------------------------------------
