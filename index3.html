@@ -478,31 +478,15 @@ async function audio_to_spectrogram() {
 	  }
 	];
 
-	var layout = {title: 'Heatmap with Unequal Block Sizes',
-
-  margin: {t: 200,
-
-    r: 200,
-
-    b: 200,
-
-    l: 200
-
-  },
-
-  xaxis: axisTemplate,
-
-  yaxis: axisTemplate,
-
-  showlegend: false,
-
-  width: 700,
-
-  height: 700,
-
-  autosize: false
-
-};
+	var layout = {title: 'Heatmap of Spectrogram',
+		      //margin: {t: 200, r: 200, b: 200, l: 200},
+		      xaxis: "Time (s)",
+		      yaxis: "Frequency (Hz)",
+		      showlegend: false,
+		      width: 600,
+		      height: 600,
+		      autosize: false
+		     };
 	
 	// Create a new div element to display data on
 	const div = document.createElement('div');
