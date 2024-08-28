@@ -325,8 +325,8 @@ async function audio_to_frequency_domain() {
 
 async function plotly_line_subplot(obj) {
 	
-	trace0 = {x: obj.trace0_x, y: obj.trace0_y, xaxis: obj.x_text_trace0, yaxis: obj.y_text_trace0, type: 'line'};
-	trace1 = {x: obj.trace1_x, y: obj.trace1_y, xaxis: obj.x_text_trace1, yaxis: obj.y_text_trace1, type: 'line'};
+	trace0 = {x: obj.trace0_x, y: obj.trace0_y, type: 'line'};
+	trace1 = {x: obj.trace1_x, y: obj.trace1_y, xaxis: 'x2', yaxis: 'y2', type: 'line'};
 	data = [trace0, trace1];
 	layout = {grid: {rows: 2, columns: 1, pattern: 'independent'}, title: obj.title_text};
 
