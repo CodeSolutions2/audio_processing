@@ -362,36 +362,36 @@ async function audio_to_spectrogram() {
 	const [t1, x_avg] = await audio_to_timeseries();
 	
 	// --------------------
-	
-	// Spectrogram is x (time) by y (frequency), so chunk the time series and then compute the FFT per [time series chunk]
-	
-	// Try to make up a reasonable time chuck for the length of time series data
-	const num_of_timeBins = 10;
-	const length_of_each_timeBin = await Math.floor(x_avg.length/num_of_timeBins); // make each time series chunk a 10% of the data length
-	console.log('length_of_each_timeBin : ', length_of_each_timeBin);
-
+	// Spectrogram is x (time) by y (frequency).
+	// Chunk the time series and then compute the FFT per [time series chunk]
+	// --------------------
 	
 	// Calculate spectrogram
 	var frameLength = 255;  // fftSize or nfft, Length of each window/frame segment - frequency data will be binned by nfft/2 
 	var frameStep = 128;  // The number of samples to shift between frames.
 	// var windowFn = tf.signal.hann_window; // The window function to apply to each frame before computing the FFT; to smooth the data
 
-	
-	var spec_width_height = [];
+	// --------------------
 
 	// For plotting
 	var plot_width_time = [];
 	var max_freq = 0;
 
-	// ***** WORK ON *****
+	// --------------------
+
 	var num_of_nonOverlapingBatches = Math.floor(length_of_each_timeBin/frameLength);
   	var num_of_times_to_slide = 2*num_of_nonOverlapingBatches - 1;
 	console.log('num_of_times_to_slide : ', num_of_times_to_slide);
+
+	// --------------------
+
+	var spectrogram_timeWidth_freqHeight = [];
 	
-	for (var width=0; width<num_of_timeBins-1; width++) {
-    
-		var start = width * length_of_each_timeBin;
-		var x_time_chunk = await x_avg.slice(start, start+length_of_each_timeBin);
+	for (var time_width=0; time_width<num_of_times_to_slide; time_width++) {
+		
+		var st = time_width * frameStep;
+		var stop = st + frameLength;
+		var x_time_chunk = x_avg.slice(st, stop);
 		// console.log('x_time_chunk : ', x_time_chunk);
 
 		// --------------------
@@ -400,123 +400,114 @@ async function audio_to_spectrogram() {
 
 		// --------------------
 		
-		plot_width_time.push(width);
+		plot_width_time.push(st);
 
 		// --------------------
 		
-		// Convert the [waveform chunk] to a spectrogram using the Short-Time Fourier Transform (STFT)
-		// var fftLength = x_time_chunk.length; // The length of the FFT used for the STFT.
-	  	// var spectrogram_height = await tf.signal.stft(x_time_chunk, frameLength, frameStep, fftLength, windowFn);	
-		// var spectrogram_batchSize_height = await tf.signal.stft(x_time_chunk, frameLength, frameStep);
-		// console.log('spectrogram_batchSize_height : ', spectrogram_batchSize_height);
-		// dtype: "complex64"
-		// shape: Array [ 0, 129 ] which corresponds to [batch_size, height=frequency]
-		// strides: Array [ 129 ]
-
-		// Obtain the magnitude of the STFT (dtype: "float32")
-		// const spectrogram_mag_batchSize_height = await tf.abs(spectrogram_batchSize_height);
-		// console.log('spectrogram_mag_batchSize_height : ', spectrogram_mag_batchSize_height);
-		// dtype: "float32"
-		// shape: Array [0, 129]
-		// strides: Array [ 129 ]
-
-		// OR
+		// Compute frequency response/domain for a time_chunk
+		var freq_response = await tensorflow_FFT(x_time_chunk);
+		// console.log('freq_response : ', freq_response);
+			
+		// --------------------
 		
-		var spectrogram_batchSize_height = [];
-		for (var i=0; i<num_of_times_to_slide; i++) {
-			var st = i * frameStep;
-			var stop = st + frameLength;
-			var batch_x_time_chunk = x_time_chunk.slice(st, stop);
-			
-			console.log('batch_x_time_chunk.length : ', batch_x_time_chunk.length);
-			
-			// --------------------
-			
-			// Compute frequency response/domain
-			var freq_response = await tensorflow_FFT(batch_x_time_chunk);
-			// console.log('freq_response : ', freq_response);
-			
-			// --------------------
+		// Magnitude of frequency response
+		var Xn_mag = tf.real(freq_response).abs();
+		// console.log('Xn_mag : ', Xn_mag);
+
+		// Convert to JavaScript
+		Xn_mag = Xn_mag.arraySync()[0];  // arraySync creates an array in an array
+		var positive_part_mag = Xn_mag.slice(0, Math.floor(Xn_mag.length/2));
+		console.log('positive_part_mag : ', positive_part_mag);
+
+		// positive_part_mag is an array that has length [frameLength/2 or nfft/2].
 		
-			// Magnitude of frequency response
-			var Xn_mag = tf.real(freq_response).abs();
-			// console.log('Xn_mag : ', Xn_mag);
+		// Next, need to bin this array like a histogram
 
-			// Convert to JavaScript
-			Xn_mag = Xn_mag.arraySync()[0];  // arraySync creates an array in an array
-			var positive_part_mag = Xn_mag.slice(0, Math.floor(Xn_mag.length/2));
-			console.log('positive_part_mag : ', positive_part_mag);
-			
-			// Need to obtain a scalar value (try the sum of all values)
-			var Xn_pos_mag_sum = positive_part_mag.reduce((acc, val) => acc + val, 0);
-			console.log('Xn_pos_mag_sum : ', Xn_pos_mag_sum);
+		// --------------------
 
-			// --------------------
-			
-			spectrogram_batchSize_height.push(Xn_pos_mag_sum);
+		var freq_histogram = await array_to_histogram(positive_part_mag);
+		// freq_histogram will have length positive_part_mag, which is [frameLength/2 or nfft/2]
+		
+		// --------------------
 
-			// --------------------
+		if (Math.max(freq_histogram) > max_freq) {
+			max_freq = Math.max(freq_histogram);
 		}
+
+		// --------------------
+
+		spectrogram_timeWidth_freqHeight.push(freq_histogram);
 		
-		console.log('spectrogram_batchSize_height: ', spectrogram_batchSize_height);
-		
-		// Flatten array to remove the batchSize or [number of convolutional slides of FFT evaluation] 
-		// const spectrogram_height = spectrogram_batchSize_height.map((val, ind) => { return val; });
-		// console.log('spectrogram_height: ', spectrogram_height);
-
-		// Normalize the 
-
-		// Remove 0th dimension from [batch_size, height=frequency]
-		// Try 0
-		// const spectrogram_mag_height = tf.squeeze(spectrogram_mag_batchSize_height, axis=0);
-		// Uncaught (in promise) Error: Can't squeeze axis 0 since its dim '0' is not 1
-
-		// Try 1
-		// const spectrogram_mag_height = tf.tensor1d(spectrogram_mag_batchSize_height);
-		// Uncaught (in promise) Error: tensor1d() requires values to be a flat/TypedArray
-
-		// Try 2: Flatten array
-
-
-		// understand how to obtain the data
-		// console.log('Try 0: ', spectrogram_mag_batchSize_height[0]);  // undefined
-
-		// Convert to JavaScript array, to pack into a JavaScript array
-		// const jsArray = await spectrogram_mag_batchSize_height.arraySync()[0];  // arraySync creates an array in an array
-		// undefined
-		// OR
-		// const jsArray = await spectrogram_mag_batchSize_height.dataSync();
-		// console.log('jsArray: ', jsArray);
-
-		
-		// Try 3: index values to a javascript array
-		// console.log('spectrogram_mag_batchSize_height.shape.at(1) : ', spectrogram_mag_batchSize_height.shape.at(1)); // 129
-		
-		// const spectrogram_mag_height_js = Array.from({ length: spectrogram_mag_batchSize_height.shape.at(1) }, (_, i) => spectrogram_mag_batchSize_height[0][i]);
-		
-		// console.log('spectrogram_mag_height_js : ', spectrogram_mag_height_js);
-
-		
-
-		// Keep track of maximum value of frequency, to make frequency plot axis
-		// if (Math.max(jsArray) > max_freq) {
-		// 	max_freq = cur_max_fres;
-		// }
-
-		// spec_width_height.push(jsArray);
+		// --------------------
 	}
-
-
 	
+	console.log('spectrogram_timeWidth_freqHeight : ', spectrogram_timeWidth_freqHeight);
 
+
+	// --------------------
+
+	// spec_width_height should be 2D (width=time, height=frequency), so convert to 2Dtensor 
+	const spec_width_height2d = await tf.tensor2d(spectrogram_timeWidth_freqHeight);
+	
+  	// Transpose 
+	const spec_height_width2d = await tf.transpose(spec_width_height2d);
+
+	// --------------------
+
+	// Convert to JavaScript array, to pack into a JavaScript array
+	const jsArray_2d = await spec_height_width2d.arraySync()[0];  // arraySync creates an array in an array
+	console.log('jsArray_2d: ', jsArray_2d);
+	
+	const y_freq = Array.from({ length: jsArray_2d.length }, (_, i) => (i-1) * max_freq/jsArray_2d.length);
+	console.log('y_freq: ', y_freq);
+	
+	var data = [
+	  {
+	    z: jsArray_2d,
+	    x: plot_width_time,
+	    y: y_freq,
+	    type: 'heatmap',
+	    hoverongaps: false
+	  }
+	];
+	
+	// Create a new div element to display data on
+	const div = document.createElement('div');
+	div.id = "data_display" + "_" + "spec";
+	div.style = "display:block; text-align: left; width: 600px; height: 600px";
+	document.getElementById("data_display_container").appendChild(div);
+	
+        Plotly.newPlot(div.id, data);
 }
   
 // -----------------------------------------------
 
 
+async function array_to_histogram(arr) {
 
+	// Round the values of arr so that there will be more common values
+	const arr_integer = arr.map((val, ind) => { return Number(Math.floor(val)); });
+	
+	// --------------------
+	
+	// Bin the signal 
+	var bin = 2;	// Need to know how many bins to divide each array
+	var histogram = [];
+	var out = arr_integer.at(0); // initialize
+	
+	for (var i=0; i<arr_integer.length; i++) {
+		if (i % bin == 0) {
+			out = arr_integer[i];
+		}
+		histogram.push(out);
+	}
 
+	// --------------------
+	
+	return histogram;
+}
 
+// -----------------------------------------------
 
 
 
