@@ -451,7 +451,6 @@ async function audio_to_spectrogram() {
 	// Normalize values from 0 to 1
 	var spectrogram_timeWidth_freqHeight_normalized = [];
 	for (var i=0; i<spectrogram_timeWidth_freqHeight.length; i++) {
-		// var col_arr = spectrogram_timeWidth_freqHeight.at(i);
 		var col = spectrogram_timeWidth_freqHeight.at(i).map((val, ind) => { return val/max_freq; });
 		spectrogram_timeWidth_freqHeight_normalized.push(col);
 	}
@@ -490,8 +489,8 @@ async function audio_to_spectrogram() {
 	var data = [
 	  {
 	    z: jsArray_2d,
-	    x: plot_width_time,
-	    y: y_freq_normalized,
+	    // x: plot_width_time,
+	    // y: y_freq_normalized,
 	    type: 'heatmap',
 	    hoverongaps: false
 	  }
