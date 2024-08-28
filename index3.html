@@ -489,10 +489,9 @@ async function audio_to_spectrogram() {
 	
 	var data = [
 	  {
-	    z: jsArray_2d,
-	    x: plot_width_time,
+	    z: spectrogram_timeWidth_freqHeight,
+	    // x: y_freq,
 	    // y: y_freq_normalized,
-	    y: undefined,
 	    type: 'heatmap',
 	    hoverongaps: false
 	  }
