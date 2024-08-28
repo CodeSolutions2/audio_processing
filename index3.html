@@ -194,7 +194,7 @@ async function audio_to_frequency_domain() {
 		obj0.trace0_y = Xn_mag_correct_order;
 		obj0.trace1_x = f_correct_order;
 		obj0.trace1_y = Xn_phase_correct_order
-		obj1.unique_div_name = "subplot_freq0";
+		obj0.unique_div_name = "subplot_freq0";
 		await plotly_line_subplot(obj0);
 		
 	} else if (which_freq_plot === "individual_plots") {
