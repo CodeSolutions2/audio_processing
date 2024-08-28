@@ -458,18 +458,8 @@ async function audio_to_spectrogram() {
 
 	// --------------------
 
-	// spec_width_height should be 2D (width=time, height=frequency), so convert to 2Dtensor
-	const spec_width_height2d = await tf.tensor2d(spectrogram_timeWidth_freqHeight);
-	// const spec_width_height2d = await tf.tensor2d(spectrogram_timeWidth_freqHeight_normalized);
-	
-  	// Transpose 
-	const spec_height_width2d = await tf.transpose(spec_width_height2d);
-
-	// --------------------
-
-	// Convert to JavaScript array, to pack into a JavaScript array
-	const jsArray_2d = await spec_height_width2d.arraySync()[0];  // arraySync creates an array in an array
-	console.log('jsArray_2d: ', jsArray_2d);
+	// Transpose: spectrogram_timeWidth_freqHeight is 2D (rows=width=time, columns=height=frequency), convert to spectrogram_freqHeight_timeWidth (rows=height=frequency, columns=width=time)
+	const spectrogram_freqHeight_timeWidth = await transpose(spectrogram_timeWidth_freqHeight);
 
 	// --------------------
 
@@ -479,19 +469,19 @@ async function audio_to_spectrogram() {
 
 	// --------------------
 	
-	const y_freq = Array.from({ length: jsArray_2d.length }, (_, i) => i * max_freq/jsArray_2d.length);
+	const y_freq = Array.from({ length: spectrogram_freqHeight_timeWidth.length }, (_, i) => i * max_freq/spectrogram_freqHeight_timeWidth.length);
 	console.log('y_freq: ', y_freq);
 
-	const y_freq_normalized = Array.from({ length: jsArray_2d.length }, (_, i) => i/jsArray_2d.length);
+	const y_freq_normalized = Array.from({ length: spectrogram_freqHeight_timeWidth.length }, (_, i) => i/spectrogram_freqHeight_timeWidth.length);
 	console.log('y_freq_normalized: ', y_freq_normalized);
 
 	// --------------------
 	
 	var data = [
 	  {
-	    z: spectrogram_timeWidth_freqHeight,
-	    // x: y_freq,
-	    // y: y_freq_normalized,
+	    z: spectrogram_freqHeight_timeWidth,
+            x: plot_width_time,
+            y: y_freq,
 	    type: 'heatmap',
 	    hoverongaps: false
 	  }
@@ -537,7 +527,28 @@ async function array_to_histogram(arr) {
 
 // -----------------------------------------------
 
+async function transpose(arr) {
 
+	var transpose_colNum = arr.length;
+	var transpose_rowNum = arr.at(0).length;
+	var transpose_arr = [];
+	for (var i=0; i<transpose_rowNum ; i++) {
+		const col = Array.from({ length: transpose_colNum }, (_, i) => 0);
+		transpose_arr.push(col);
+	}
+	
+	for (var i=0; i<arr.length; i++) {
+		for (var j=0; j<arr.at(i).length; j++) {
+			transpose_arr[j][i] = arr[i][j];
+		}
+	}
+	return transpose_arr;
+}
+
+// -----------------------------------------------
+
+	
+	
 
 
 // -------------------------------------------------
