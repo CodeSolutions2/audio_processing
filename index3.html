@@ -434,7 +434,7 @@ async function audio_to_spectrogram() {
 			
 			// Compute frequency response/domain
 			var freq_response = await tensorflow_FFT(batch_x_time_chunk);
-			console.log('freq_response : ', freq_response);
+			// console.log('freq_response : ', freq_response);
 			
 			// --------------------
 		
@@ -445,7 +445,7 @@ async function audio_to_spectrogram() {
 			// Convert to JavaScript
 			Xn_mag = Xn_mag.arraySync()[0];  // arraySync creates an array in an array
 			var positive_part_mag = Xn_mag.slice(0, Math.floor(Xn_mag.length/2));
-			// console.log('positive_part_mag : ', positive_part_mag);
+			console.log('positive_part_mag : ', positive_part_mag);
 			
 			// Need to obtain a scalar value (try the sum of all values)
 			var Xn_pos_mag_sum = positive_part_mag.reduce((acc, val) => acc + val, 0);
@@ -458,9 +458,13 @@ async function audio_to_spectrogram() {
 			// --------------------
 		}
 		
+		console.log('spectrogram_batchSize_height: ', spectrogram_batchSize_height);
+		
 		// Flatten array to remove the batchSize or [number of convolutional slides of FFT evaluation] 
-		const spectrogram_height = (spectrogram_batchSize_height) => [].concat.apply([], spectrogram_batchSize_height.map((a) => (Array.isArray(a) ? flat(a):a)));
-		console.log('spectrogram_height: ', spectrogram_height);
+		// const spectrogram_height = spectrogram_batchSize_height.map((val, ind) => { return val; });
+		// console.log('spectrogram_height: ', spectrogram_height);
+
+		// Normalize the 
 
 		// Remove 0th dimension from [batch_size, height=frequency]
 		// Try 0
