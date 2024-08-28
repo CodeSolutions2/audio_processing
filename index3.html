@@ -446,11 +446,21 @@ async function audio_to_spectrogram() {
 	
 	console.log('spectrogram_timeWidth_freqHeight : ', spectrogram_timeWidth_freqHeight);
 
+	// --------------------
+
+	// Normalize values from 0 to 1
+	var spectrogram_timeWidth_freqHeight_normalized = [];
+	for (var i=0; i<spectrogram_timeWidth_freqHeight.length; i++) {
+		// var col_arr = spectrogram_timeWidth_freqHeight.at(i);
+		var col = spectrogram_timeWidth_freqHeight.at(i).map((val, ind) => { return val/max_freq; });
+		spectrogram_timeWidth_freqHeight_normalized.push(col);
+	}
+	console.log('spectrogram_timeWidth_freqHeight_normalized: ', spectrogram_timeWidth_freqHeight_normalized);
 
 	// --------------------
 
 	// spec_width_height should be 2D (width=time, height=frequency), so convert to 2Dtensor 
-	const spec_width_height2d = await tf.tensor2d(spectrogram_timeWidth_freqHeight);
+	const spec_width_height2d = await tf.tensor2d(spectrogram_timeWidth_freqHeight_normalized);
 	
   	// Transpose 
 	const spec_height_width2d = await tf.transpose(spec_width_height2d);
@@ -460,18 +470,6 @@ async function audio_to_spectrogram() {
 	// Convert to JavaScript array, to pack into a JavaScript array
 	const jsArray_2d = await spec_height_width2d.arraySync()[0];  // arraySync creates an array in an array
 	console.log('jsArray_2d: ', jsArray_2d);
-
-	// --------------------
-
-	// Normalize values from 0 to 1
-	var jsArray_2d_normalized = [];
-	for (var i=0; i<jsArray_2d.length; i++) {
-		var col = [];
-		for (var j=0; j<jsArray_2d[i].length; j++) {
-			jsArray_2d_normalized.push(jsArray_2d[i][j]/max_freq);
-		}
-	}
-	console.log('jsArray_2d_normalized: ', jsArray_2d_normalized);
 
 	// --------------------
 
@@ -491,9 +489,9 @@ async function audio_to_spectrogram() {
 	
 	var data = [
 	  {
-	    z: jsArray_2d_normalized,
+	    z: jsArray_2d,
 	    x: plot_width_time,
-	    //y: y_freq_normalized,
+	    y: y_freq_normalized,
 	    type: 'heatmap',
 	    hoverongaps: false
 	  }
