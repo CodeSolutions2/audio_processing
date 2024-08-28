@@ -17,8 +17,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-<script src='https://d3js.org/d3.v7.min.js'></script>
-
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
 
 <script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
@@ -324,11 +322,13 @@ async function audio_to_frequency_domain() {
 
 
 async function plotly_line_subplot(obj) {
+
+	// xaxis: 'x2', yaxis: 'y2' is key to plotting each of the traces in their own subplot
 	
 	trace0 = {x: obj.trace0_x, y: obj.trace0_y, type: 'line'};
 	trace1 = {x: obj.trace1_x, y: obj.trace1_y, xaxis: 'x2', yaxis: 'y2', type: 'line'};
 	data = [trace0, trace1];
-	layout = {grid: {rows: 2, columns: 1, pattern: 'independent'}, title: obj.title_text};
+	layout = {grid: {rows: 2, columns: 1, pattern: 'independent'}, title: obj.title_text, xaxis: {title: obj.x_text_trace0}, yaxis: {title: obj.y_text_trace0}, xaxis2: {title: obj.x_text_trace1}, yaxis2: {title: obj.y_text_trace1}};
 
 	// Create a new div element to display data on
 	const div = document.createElement('div');
@@ -383,6 +383,7 @@ async function audio_to_spectrogram() {
 	var plot_width_time = [];
 	var max_freq = 0;
 
+	// ***** WORK ON *****
 	var num_of_times_to_slide = (2 * length_of_each_timeBin/frameLength) - frameStep;
 	console.log('num_of_times_to_slide : ', num_of_times_to_slide);
 	
@@ -497,98 +498,6 @@ async function audio_to_spectrogram() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-// -----------------------------------------------
-	
-async function plot_line_graph_dataObject(x, y, title_text) {
-
-	// const dataObject = [
-        //     { x: 0, y: 10 },
-        //     { x: 1, y: 20 },
-        //     { x: 2, y: 15 },
-        //     { x: 3, y: 25 },
-        //     { x: 4, y: 18 }
-        // ];
-
-	console.log("x: ", x.slice(0, 10));
-	console.log("y: ", y.slice(0, 10));
-	
-	var dataObject = [];
-	for (var i=0; i<x.length; i++) {
-		var obj = { x: x.at(i), y: y.at(i) };
-		dataObject.push(obj);
-	}
-	
-	const width = 1000;
-	const height = 500;
-
-	const margin = {top: 20, right: 30, bottom: 30, left: 40};
-	
-        const svg = d3.select("#data_display_container")
-		.append("svg")
-		.attr("class", 'line')
-		.attr("width", width)
-		.attr("height", height);
-
-        const x_scale = d3.scaleLinear()
-            .domain([0, d3.max(dataObject, d => d.x)], [margin.left, width - margin.right])
-            .range([0, width]);
-
-        const y_scale = d3.scaleLinear()
-            .domain([0, d3.max(dataObject, d => d.y)], [height - margin.bottom, margin.top])
-            .range([height, 0]);
-
-        const line = d3.line()
-            .x(d => x_scale(d.x))
-            .y(d => y_scale(d.y));
-
-        svg.append("path")
-            .datum(dataObject)
-            .attr("fill", "none")
-            .attr("stroke", "steelblue")
-            .attr("stroke-width", 2)
-            .attr("d", line);
-
-	// --------------------
-	
-	// Add the x-axis
-	svg.append("g")
-		.attr('class', 'x axis')
-		// The next line moves the axis to the bottom
-		.attr("transform", `translate(0, ${height - margin.bottom})`)
-		.call(d3.axisBottom(x_scale));
-
-	// --------------------
-	
-	// Add the y-axis
-	svg.append("g")
-		.attr('class', 'y-axis')
-		.attr("transform", `translate(${margin.left}, 0)`)
-		.call(d3.axisLeft(y_scale))
-		// Add title
-		.call(g => g.append("text")
-			.attr("x", d3.max(dataObject, d => d.x)/2 )
-			.attr("y", 15)
-			.attr("fill", "currentColor")
-			.attr("text-anchor", "middle")
-			.style("font-size", "16px")
-			.text(`Title: ${title_text}`));
-
-	// --------------------
-
-}
-
-// -----------------------------------------------
 
 
 
