@@ -167,16 +167,17 @@ async function audio_to_frequency_domain() {
 	console.log("f_correct_order.length: ", f_correct_order.length);
 
 	// Plot both the [negative, positive] parts of the frequency response in hertz
-	var title_text = "Frequency response in correct order: Hz";
-	var x_text_trace1 = "Frequency";
-	var y_text_trace1 = "Magnitude (Hz)";
-	var x_text_trace2 = "Frequency";
-	var y_text_trace2 = "Phase (deg)";
-	var trace1 = {x: f_correct_order, y: Xn_mag_correct_order, xaxis: x_text_trace1, yaxis: y_text_trace1, mode: 'markers', type: 'line'};
-	var trace2 = {x: f_correct_order, y: Xn_phase_correct_order, xaxis: x_text_trace2, yaxis: y_text_trace2, mode: 'markers', type: 'line'};
-	var data = [trace1, trace2];
-	var layout = {grid: {rows: 2, columns: 1, pattern: 'independent'}, title: title_text};
-	Plotly.newPlot('data_display', data, layout);
+	const obj0 = {};
+	obj0.title_text = "Frequency response in correct order: Hz";
+	obj0.x_text_trace0 = "Frequency";
+	obj0.y_text_trace0 = "Magnitude (Hz)";
+	obj0.x_text_trace1 = "Frequency";
+	obj0.y_text_trace1 = "Phase (deg)";
+	obj0.trace0_x = f_correct_order;
+	obj0.trace0_y = Xn_mag_correct_order;
+	obj0.trace1_x = f_correct_order;
+	obj0.trace1_y = Xn_phase_correct_order
+	await plotly_line_subplot(obj0);
   
 	// --------------------
   
@@ -184,21 +185,33 @@ async function audio_to_frequency_domain() {
 	const Xn_mag_positive_part_db = positive_part_mag.map((val, ind) => { return 20 * Math.log10(val); });
 
 	// Plot only positive part of frequency response in decibels
-	title_text = "Frequency response in decibels: dB";
-	x_text_trace1 = "Frequency";
-	y_text_trace1 = "Magnitude (dB)";
-	x_text_trace2 = "Frequency";
-	y_text_trace2 = "Phase (deg)";
-	trace1 = {x: positive_part_f, y: Xn_mag_positive_part_db, xaxis: x_text_trace1, yaxis: y_text_trace1, mode: 'markers', type: 'line'};
-	trace2 = {x: positive_part_f, y: positive_part_phase, xaxis: x_text_trace2, yaxis: y_text_trace2, mode: 'markers', type: 'line'};
-	data = [trace1, trace2];
-	layout = {grid: {rows: 2, columns: 1, pattern: 'independent'}, title: title_text};
-	Plotly.newPlot('data_display', data, layout);
-  
+	const obj1 = {};
+	obj1.title_text = "Frequency response in decibels: dB";
+	obj1.x_text_trace0 = "Frequency";
+	obj1.y_text_trace0 = "Magnitude (dB)";
+	obj1.x_text_trace1 = "Frequency";
+	obj1.y_text_trace1 = "Phase (deg)";
+	obj1.trace0_x = positive_part_f;
+	obj1.trace0_y = Xn_mag_positive_part_db;
+	obj1.trace1_x = positive_part_f;
+	obj1.trace1_y = positive_part_phase
+	await plotly_line_subplot(obj1);
+	
 	// --------------------
 	
 }
 
+
+async function plotly_line_subplot(obj) {
+	
+	trace0 = {x: obj1.trace0_x, y: obj.trace0_y, xaxis: obj.x_text_trace0, yaxis: obj.y_text_trace0, type: 'line'};
+	trace1 = {x: obj1.trace1_x, y: obj.trace1_y, xaxis: obj.x_text_trace1, yaxis: obj.y_text_trace1, type: 'line'};
+	data = [trace0, trace1];
+	layout = {grid: {rows: 2, columns: 1, pattern: 'independent'}, title: obj.title_text};
+	Plotly.newPlot('data_display', data, layout);
+}
+
+	
 	
 // -----------------------------------------------
 
