@@ -427,12 +427,12 @@ async function audio_to_spectrogram() {
 
 		var freq_histogram = await array_to_histogram(positive_part_mag);
 		// freq_histogram will have length positive_part_mag, which is [frameLength/2 or nfft/2]
-		console.log('freq_histogram : ', freq_histogram);
+		// console.log('freq_histogram : ', freq_histogram);
 		
 		// --------------------
 		
 		const max_freqhist = await freq_histogram.sort().at(freq_histogram.length-1);
-		console.log('max_freqhist : ', max_freqhist);
+		// console.log('max_freqhist : ', max_freqhist);
 		if (max_freqhist > max_freq) {
 			max_freq = max_freqhist;
 		}
@@ -459,7 +459,7 @@ async function audio_to_spectrogram() {
 
 	// Convert to JavaScript array, to pack into a JavaScript array
 	const jsArray_2d = await spec_height_width2d.arraySync()[0];  // arraySync creates an array in an array
-	// console.log('jsArray_2d: ', jsArray_2d);
+	console.log('jsArray_2d: ', jsArray_2d);
 
 	// --------------------
 
@@ -471,6 +471,7 @@ async function audio_to_spectrogram() {
 			jsArray_2d_normalized.push(jsArray_2d[i][j]/max_freq);
 		}
 	}
+	console.log('jsArray_2d_normalized: ', jsArray_2d_normalized);
 
 	// --------------------
 
@@ -492,7 +493,7 @@ async function audio_to_spectrogram() {
 	  {
 	    z: jsArray_2d_normalized,
 	    x: plot_width_time,
-	    y: y_freq_normalized,
+	    //y: y_freq_normalized,
 	    type: 'heatmap',
 	    hoverongaps: false
 	  }
