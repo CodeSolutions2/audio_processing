@@ -241,13 +241,10 @@ async function audio_to_spectrogram() {
 		console.log('x_time_chunk : ', x_time_chunk);
 
 		plot_width_time.push(width);
-
-		const signal = tf.tensor1d(x_time_chunk);
-		const reshapedSignal = signal.reshape([batch_size, -1]);
 		
 		// Convert the [waveform chunk] to a spectrogram using the Short-Time Fourier Transform (STFT)
 	  	// var spectrogram_height = await tf.signal.stft(x_time_chunk, frameLength, frameStep, fftLength, windowFn);
-		const spectrogram_batchSize_height = await tf.signal.stft(reshapedSignal, frameLength, frameStep);
+		const spectrogram_batchSize_height = await tf.signal.stft(x_time_chunk, frameLength, frameStep);
 		// console.log('spectrogram_batchSize_height : ', spectrogram_batchSize_height);
 		// dtype: "complex64"
 		// shape: Array [ 0, 129 ] which corresponds to [batch_size, height=frequency]
@@ -269,11 +266,14 @@ async function audio_to_spectrogram() {
 		// const spectrogram_mag_height = tf.tensor1d(spectrogram_mag_batchSize_height);
 		// Uncaught (in promise) Error: tensor1d() requires values to be a flat/TypedArray
 
-		// Try 2: Flatten array 
+		// Try 2: Flatten array
+
+
+		// understand how to index
 		console.log('Try 0: ', spectrogram_mag_batchSize_height[0]);
 
 		// Try 3: index values to a javascript array
-		console.log('length of spec_mag_batch_height: ', spectrogram_mag_batchSize_height.shape.at(1));
+		console.log('spectrogram_mag_batchSize_height.shape.at(1) : ', spectrogram_mag_batchSize_height.shape.at(1));
 		const spectrogram_mag_height_js = Array.from({ length: spectrogram_mag_batchSize_height.shape.at(1) }, (_, i) => spectrogram_mag_batchSize_height[0][i]);
 		
 		console.log('spectrogram_mag_height_js : ', spectrogram_mag_height_js);
