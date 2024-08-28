@@ -282,20 +282,24 @@ async function audio_to_spectrogram() {
 		// Try 2: Flatten array
 
 
-		// understand how to index
-		console.log('Try 0: ', spectrogram_mag_batchSize_height[0]);
+		// understand how to obtain the data
+		// console.log('Try 0: ', spectrogram_mag_batchSize_height[0]);  // undefined
 
-		// Try 3: index values to a javascript array
-		console.log('spectrogram_mag_batchSize_height.shape.at(1) : ', spectrogram_mag_batchSize_height.shape.at(1));
-		const spectrogram_mag_height_js = Array.from({ length: spectrogram_mag_batchSize_height.shape.at(1) }, (_, i) => spectrogram_mag_batchSize_height[0][i]);
+		// Convert to JavaScript array, to pack into a JavaScript array
+		const jsArray = await spectrogram_mag_batchSize_height.arraySync()[0];  // arraySync creates an array in an array
+		console.log('jsArray: ', jsArray);
+
 		
-		console.log('spectrogram_mag_height_js : ', spectrogram_mag_height_js);
+		// Try 3: index values to a javascript array
+		console.log('spectrogram_mag_batchSize_height.shape.at(1) : ', spectrogram_mag_batchSize_height.shape.at(1)); // 129
+		
+		// const spectrogram_mag_height_js = Array.from({ length: spectrogram_mag_batchSize_height.shape.at(1) }, (_, i) => spectrogram_mag_batchSize_height[0][i]);
+		
+		// console.log('spectrogram_mag_height_js : ', spectrogram_mag_height_js);
 
 
 		// It will stop here
-		// Convert to JavaScript array, to pack into a JavaScript array
-		const jsArray = await spectrogram_mag_height.arraySync()[0];  // arraySync creates an array in an array
-		console.log('jsArray: ', jsArray);
+		
 
 		// Keep track of maximum value of frequency, to make frequency plot axis
 		if (Math.max(jsArray) > max_freq) {
@@ -306,69 +310,7 @@ async function audio_to_spectrogram() {
 	}
 
 
-	// spec_width_height should be 2D (width=time, height=frequency), so convert to 2Dtensor 
-	const spec_width_height2d = await tf.tensor2d(spec_width_height);
 	
-  	// Transpose 
-	const spec_height_width2d = await tf.transpose(spec_width_height2d);
-	
-	// Add an extra-dimension for the batch_size 
-	const spec_batch_height_width3d = await spec_height_width2d.expandDims(0);
-
-	// Add an extra-dimension for the channel
-	// Add a `channels` dimension, so that the spectrogram can be used as image-like input data with convolution layers (which expect
-	const spec_batch_height_width_channels4d = await spec_batch_height_width3d.expandDims(-1);
-	console.log('spec_batch_height_width_channels4d : ', spec_batch_height_width_channels4d);
-	
-
-	// Desired Output: 4D Array
-	// shape (`batch_size`, `height`, `width`, `channels`)
-
-	// --------------------
-
-	// Convert to JavaScript array, to pack into a JavaScript array
-	const jsArray_2d = await spec_height_width2d.arraySync()[0];  // arraySync creates an array in an array
-	console.log('jsArray_2d: ', jsArray_2d);
-	
-	const y_freq = Array.from({ length: jsArray_2d.length }, (_, i) => (i-1) * max_freq/jsArray_2d.length);
-	console.log('y_freq: ', y_freq);
-	
-	var data = [
-	  {
-	    z: jsArray_2d,
-	    x: plot_width_time,
-	    y: y_freq,
-	    type: 'heatmap',
-	    hoverongaps: false
-	  }
-	];
-	
-	Plotly.newPlot('data_display', data);
-
-	// --------------------
-
-	// Plot 3D data on canvas
-	var w = frameLength;
-	const ctx = await create_dynamic_canvasElement(w);
-	
-	// Manipulate image data, change the alpha component
-	// Way 0: use the 4D data array
-	let imageDataArray = new Uint8ClampedArray(w * w * 4);
-	for (let i = 0; i < w * w; i++) {
-	     let value = spec_batch_height_width_channels4d.dataSync()[i];
-	     imageDataArray[i * 4] = value > 0.5 ? 255 : 0; // Red component
-	     imageDataArray[i * 4 + 1] = value > 0.5 ? 255 : 0; // Green component
-	     imageDataArray[i * 4 + 2] = value > 0.5 ? 255 : 0; // Blue component
-	     imageDataArray[i * 4 + 3] = 255; // Alpha component, set to 255 to make it fully opaque
-	}
-
-	// Print the manipulated image data on another canvas
-	let imageData = new ImageData(imageDataArray, w, w);
-	
-	// Draw the image data onto the canvas
-	ctx.putImageData(imageData, 0, 0);
-
-	// --------------------
 
 }
   
