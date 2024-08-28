@@ -459,20 +459,40 @@ async function audio_to_spectrogram() {
 
 	// Convert to JavaScript array, to pack into a JavaScript array
 	const jsArray_2d = await spec_height_width2d.arraySync()[0];  // arraySync creates an array in an array
-	console.log('jsArray_2d: ', jsArray_2d);
+	// console.log('jsArray_2d: ', jsArray_2d);
+
+	// --------------------
+
+	// Normalize values from 0 to 1
+	var jsArray_2d_normalized = [];
+	for (var i=0; i<jsArray_2d.length; i++) {
+		var col = [];
+		for (var j=0; j<jsArray_2d[i].length; j++) {
+			jsArray_2d_normalized.push(jsArray_2d[i][j]/max_freq);
+		}
+	}
+
+	// --------------------
 
 	console.log('plot_width_time: ', plot_width_time);
 
 	console.log('max_freq: ', max_freq);
+
+	// --------------------
 	
 	const y_freq = Array.from({ length: jsArray_2d.length }, (_, i) => i * max_freq/jsArray_2d.length);
 	console.log('y_freq: ', y_freq);
+
+	const y_freq_normalized = Array.from({ length: jsArray_2d.length }, (_, i) => i/jsArray_2d.length);
+	console.log('y_freq_normalized: ', y_freq_normalized);
+
+	// --------------------
 	
 	var data = [
 	  {
-	    z: jsArray_2d,
+	    z: jsArray_2d_normalized,
 	    x: plot_width_time,
-	    y: y_freq,
+	    y: y_freq_normalized,
 	    type: 'heatmap',
 	    hoverongaps: false
 	  }
