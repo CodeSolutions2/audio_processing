@@ -478,15 +478,7 @@ async function audio_to_spectrogram() {
 	  }
 	];
 
-	var layout = {title: 'Heatmap of Spectrogram',
-		      //margin: {t: 200, r: 200, b: 200, l: 200},
-		      xaxis: "Time (s)",
-		      yaxis: "Frequency (Hz)",
-		      showlegend: false,
-		      width: 600,
-		      height: 600,
-		      autosize: false
-		     };
+	var layout = {title: 'Heatmap of Spectrogram',  xaxis: {title: "Time (s)"}, yaxis: {title: "Frequency (Hz)"}};
 	
 	// Create a new div element to display data on
 	const div = document.createElement('div');
