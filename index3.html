@@ -477,6 +477,32 @@ async function audio_to_spectrogram() {
 	    hoverongaps: false
 	  }
 	];
+
+	var layout = {title: 'Heatmap with Unequal Block Sizes',
+
+  margin: {t: 200,
+
+    r: 200,
+
+    b: 200,
+
+    l: 200
+
+  },
+
+  xaxis: axisTemplate,
+
+  yaxis: axisTemplate,
+
+  showlegend: false,
+
+  width: 700,
+
+  height: 700,
+
+  autosize: false
+
+};
 	
 	// Create a new div element to display data on
 	const div = document.createElement('div');
@@ -484,7 +510,7 @@ async function audio_to_spectrogram() {
 	div.style = "display:block; text-align: left; width: 600px; height: 600px";
 	document.getElementById("data_display_container").appendChild(div);
 	
-        Plotly.newPlot(div.id, data);
+        Plotly.newPlot(div.id, data, layout);
 }
   
 // -----------------------------------------------
@@ -500,11 +526,11 @@ async function array_to_histogram(arr) {
 	// Bin the signal 
 	var bin = 4;	// Need to know how many bins to divide each array, tensorflow.js did bin=2
 	var histogram = [];
-	var out = arr_integer.at(0); // initialize
+	var out = arr.at(0); // initialize
 	
-	for (var i=0; i<arr_integer.length; i++) {
+	for (var i=0; i<arr.length; i++) {
 		if (i % bin == 0) {
-			out = arr_integer[i];
+			out = arr[i];
 		}
 		histogram.push(out);
 	}
