@@ -430,8 +430,8 @@ async function audio_to_spectrogram() {
 		console.log('freq_histogram : ', freq_histogram);
 		
 		// --------------------
-
-		var max_freqhist = Math.max(freq_histogram);
+		
+		const max_freqhist = freq_histogram.sort().at(arr_sort.length-1);
 		console.log('max_freqhist : ', max_freqhist);
 		if (max_freqhist > max_freq) {
 			max_freq = max_freqhist;
