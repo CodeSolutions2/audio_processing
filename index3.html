@@ -384,7 +384,8 @@ async function audio_to_spectrogram() {
 	var max_freq = 0;
 
 	// ***** WORK ON *****
-	var num_of_times_to_slide = (2 * length_of_each_timeBin/frameLength) - frameStep;
+	var num_of_nonOverlapingBatches = Math.floor(length_of_each_timeBin/frameLength);
+  	var num_of_times_to_slide = 2*num_of_nonOverlapingBatches - 1;
 	console.log('num_of_times_to_slide : ', num_of_times_to_slide);
 	
 	for (var width=0; width<num_of_timeBins-1; width++) {
