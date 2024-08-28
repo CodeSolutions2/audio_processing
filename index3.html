@@ -180,7 +180,7 @@ async function audio_to_frequency_domain() {
 	
 	// --------------------
 
-	var which_freq_plot = "none"; // "subplot", "individual_plots", "none"
+	var which_freq_plot = "subplot"; // "subplot", "individual_plots", "none"
 
 	// Plot both the [negative, positive] parts of the frequency response in hertz
 	if (which_freq_plot === "subplot") {
@@ -448,13 +448,16 @@ async function audio_to_spectrogram() {
 
 	// --------------------
 
-	// Normalize values from 0 to 1
-	// var spectrogram_timeWidth_freqHeight_normalized = [];
-	// for (var i=0; i<spectrogram_timeWidth_freqHeight.length; i++) {
-	// 	var col = spectrogram_timeWidth_freqHeight.at(i).map((val, ind) => { return val/max_freq; });
-	// 	spectrogram_timeWidth_freqHeight_normalized.push(col);
-	// }
-	// console.log('spectrogram_timeWidth_freqHeight_normalized: ', spectrogram_timeWidth_freqHeight_normalized);
+	const normalize_spectrogram = "none"; // "none", "normalize"
+	if (normalize_spectrogram == "normalize") {
+		// Normalize values from 0 to 1
+		var spectrogram_timeWidth_freqHeight_normalized = [];
+		for (var i=0; i<spectrogram_timeWidth_freqHeight.length; i++) {
+			var col = spectrogram_timeWidth_freqHeight.at(i).map((val, ind) => { return val/max_freq; });
+			spectrogram_timeWidth_freqHeight_normalized.push(col);
+		}
+		console.log('spectrogram_timeWidth_freqHeight_normalized: ', spectrogram_timeWidth_freqHeight_normalized);
+	}
 
 	// --------------------
 
@@ -464,7 +467,6 @@ async function audio_to_spectrogram() {
 	// --------------------
 
 	console.log('plot_width_time: ', plot_width_time);
-
 	console.log('max_freq: ', max_freq);
 
 	// --------------------
