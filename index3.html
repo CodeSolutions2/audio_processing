@@ -392,8 +392,14 @@ async function audio_to_spectrogram() {
     
 		var start = width * length_of_each_timeBin;
 		var x_time_chunk = await x_avg.slice(start, start+length_of_each_timeBin);
-		console.log('x_time_chunk : ', x_time_chunk);
+		// console.log('x_time_chunk : ', x_time_chunk);
 
+		// --------------------
+		
+		console.log('x_time_chunk.length : ', x_time_chunk.length);
+
+		// --------------------
+		
 		plot_width_time.push(width);
 
 		// --------------------
@@ -421,23 +427,29 @@ async function audio_to_spectrogram() {
 			var st = i * frameStep;
 			var stop = st + frameLength;
 			var batch_x_time_chunk = x_time_chunk.slice(st, stop);
-			await tensorflow_FFT(batch_x_time_chunk);
+			
+			console.log('batch_x_time_chunk.length : ', batch_x_time_chunk.length);
+			
+			// --------------------
+			
 			// Compute frequency response/domain
-			var freq_response = await tensorflow_FFT(x_avg);
+			var freq_response = await tensorflow_FFT(batch_x_time_chunk);
 			console.log('freq_response : ', freq_response);
 			
 			// --------------------
 		
 			// Magnitude of frequency response
 			var Xn_mag = tf.real(freq_response).abs();
-			console.log('Xn_mag : ', Xn_mag);
+			// console.log('Xn_mag : ', Xn_mag);
 
 			// Convert to JavaScript
 			Xn_mag = Xn_mag.arraySync()[0];  // arraySync creates an array in an array
-			const positive_part_mag = Xn_mag.slice(0, Math.floor(Xn_mag.length/2));
+			var positive_part_mag = Xn_mag.slice(0, Math.floor(Xn_mag.length/2));
+			// console.log('positive_part_mag : ', positive_part_mag);
 			
 			// Need to obtain a scalar value (try the sum of all values)
 			var Xn_pos_mag_sum = positive_part_mag.reduce((acc, val) => acc + val, 0);
+			console.log('Xn_pos_mag_sum : ', Xn_pos_mag_sum);
 
 			// --------------------
 			
