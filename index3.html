@@ -91,7 +91,15 @@ async function audio_to_timeseries() {
 	console.log('x_avg.length : ', x_avg.length);
 
 	// await plot_line_graph_dataObject(t1, x_avg, "Timeseries: channels averaged");
-	await plotly_line_chart(t1, x_avg, "Timeseries: channels averaged", "Time (s)", "Audio amplitude");
+	// OR
+	const obj = {};
+	obj.trace_x = t1;
+	obj.trace_y = x_avg;
+	obj.title_text = "Timeseries: channels averaged";
+	obj.x_text_trace = "Time (s)";
+	obj.y_text_trace = "Audio amplitude";
+	obj.unique_div_name = "time0";
+	await plotly_line_chart(obj);
 
 	return [t1, x_avg];
 }
@@ -174,41 +182,48 @@ async function audio_to_frequency_domain() {
 	
 	// --------------------
 
-	// Plot both the [negative, positive] parts of the frequency response in hertz
-	// const obj0 = {};
-	// obj0.title_text = "Frequency response in correct order: Hz";
-	// obj0.x_text_trace0 = "Frequency";
-	// obj0.y_text_trace0 = "Magnitude (Hz)";
-	// obj0.x_text_trace1 = "Frequency";
-	// obj0.y_text_trace1 = "Phase (deg)";
-	// obj0.trace0_x = f_correct_order;
-	// obj0.trace0_y = Xn_mag_correct_order;
-	// obj0.trace1_x = f_correct_order;
-	// obj0.trace1_y = Xn_phase_correct_order
-	// await plotly_line_subplot(obj0);
+	var which_freq_plot = "subplot"; // "individual_plots"
 
-	// OR
+	// --------------------
+
+	if (which_freq_plot == "subplot") {
+		// Plot both the [negative, positive] parts of the frequency response in hertz
+		const obj0 = {};
+		obj0.title_text = "[negative, positive] parts of the frequency response in correct order: Hz";
+		obj0.x_text_trace0 = "Frequency";
+		obj0.y_text_trace0 = "Magnitude (Hz)";
+		obj0.x_text_trace1 = "Frequency";
+		obj0.y_text_trace1 = "Phase (deg)";
+		obj0.trace0_x = f_correct_order;
+		obj0.trace0_y = Xn_mag_correct_order;
+		obj0.trace1_x = f_correct_order;
+		obj0.trace1_y = Xn_phase_correct_order
+		obj1.unique_div_name = "subplot_freq0";
+		await plotly_line_subplot(obj0);
+		
+	} else if (which_freq_plot == "individual_plots") {
 	
-	// Trace 0
-	const obj0_0 = {};
-	obj0_0.trace_x = f_correct_order;
-	obj0_0.trace_y = Xn_mag_correct_order;
-	obj0_0.title_text = "Magnitude frequency response (Hz)";
-	obj0_0.x_text_trace = "Frequency";
-	obj0_0.y_text_trace = "Magnitude (Hz)";
-	obj0_0.str_num = 0;
-	await plotly_line_chart(obj0_0);
+		// Trace 0
+		const obj0_0 = {};
+		obj0_0.trace_x = f_correct_order;
+		obj0_0.trace_y = Xn_mag_correct_order;
+		obj0_0.title_text = "[negative, positive] parts: Magnitude frequency response (Hz)";
+		obj0_0.x_text_trace = "Frequency";
+		obj0_0.y_text_trace = "Magnitude (Hz)";
+		obj0_0.unique_div_name = "freq0";
+		await plotly_line_chart(obj0_0);
+		
+		// Trace 1
+		const obj0_1 = {};
+		obj0_1.trace_x = f_correct_order;
+		obj0_1.trace_y = Xn_phase_correct_order;
+		obj0_1.title_text = "[negative, positive] parts: Phase frequency response (deg)";
+		obj0_1.x_text_trace = "Frequency";
+		obj0_1.y_text_trace = "Phase (deg)";
+		obj0_1.unique_div_name = "freq1";
+		await plotly_line_chart(obj0_1);
+  	}
 	
-	// Trace 1
-	const obj0_1 = {};
-	obj0_1.trace_x = f_correct_order;
-	obj0_1.trace_y = Xn_phase_correct_order;
-	obj0_1.title_text = "Phase frequency response (deg)";
-	obj0_1.x_text_trace = "Frequency";
-	obj0_1.y_text_trace = "Phase (deg)";
-	obj0_1.str_num = 1;
-	await plotly_line_chart(obj0_1);
-  
 	// --------------------
   
 	// Put the frequency response in the correct order : fft gives the result on a circle but mapped to a line it gives the negative part first and then the positive part. Only select the positive part.
@@ -224,39 +239,42 @@ async function audio_to_frequency_domain() {
 	// --------------------
 	
 	// Plot only positive part of frequency response in decibels
-	// const obj1 = {};
-	// obj1.title_text = "Frequency response in decibels: dB";
-	// obj1.x_text_trace0 = "Frequency";
-	// obj1.y_text_trace0 = "Magnitude (dB)";
-	// obj1.x_text_trace1 = "Frequency";
-	// obj1.y_text_trace1 = "Phase (deg)";
-	// obj1.trace0_x = positive_part_f;
-	// obj1.trace0_y = Xn_mag_positive_part_db;
-	// obj1.trace1_x = positive_part_f;
-	// obj1.trace1_y = positive_part_phase;
-	// await plotly_line_subplot(obj1);  // It plots them incorrectly on the same plot instead of a subplot
+	if (which_freq_plot == "subplot") {
+		const obj1 = {};
+		obj1.title_text = "Frequency response in decibels: dB";
+		obj1.x_text_trace0 = "Frequency";
+		obj1.y_text_trace0 = "Magnitude (dB)";
+		obj1.x_text_trace1 = "Frequency";
+		obj1.y_text_trace1 = "Phase (deg)";
+		obj1.trace0_x = positive_part_f;
+		obj1.trace0_y = Xn_mag_positive_part_db;
+		obj1.trace1_x = positive_part_f;
+		obj1.trace1_y = positive_part_phase;
+		obj1.unique_div_name = "subplot_freq1";
+		await plotly_line_subplot(obj1);  // It plots them incorrectly on the same plot instead of a subplot
 	
-	// OR
-	
-	// Trace 0
-	const obj1_0 = {};
-	obj1_0.trace_x = positive_part_f;
-	obj1_0.trace_y = Xn_mag_positive_part_db;
-	obj1_0.title_text = "Magnitude frequency response (decibels: dB)";
-	obj1_0.x_text_trace = "Frequency";
-	obj1_0.y_text_trace = "Magnitude (dB)";
-	obj1_0.str_num = 2;
-	await plotly_line_chart(obj1_0);
-	
-	// Trace 1
-	const obj1_1 = {};
-	obj1_1.trace_x = positive_part_f;
-	obj1_1.trace_y = positive_part_phase;
-	obj1_1.title_text = "Phase frequency response (deg)";
-	obj1_1.x_text_trace = "Frequency";
-	obj1_1.y_text_trace = "Phase (deg)";
-	obj1_1.str_num = 3;
-	await plotly_line_chart(obj1_1);
+	} else if (which_freq_plot == "individual_plots") {
+		
+		// Trace 0
+		const obj1_0 = {};
+		obj1_0.trace_x = positive_part_f;
+		obj1_0.trace_y = Xn_mag_positive_part_db;
+		obj1_0.title_text = "Magnitude frequency response (decibels: dB)";
+		obj1_0.x_text_trace = "Frequency";
+		obj1_0.y_text_trace = "Magnitude (dB)";
+		obj1_0.unique_div_name = "freq2";
+		await plotly_line_chart(obj1_0);
+		
+		// Trace 1
+		const obj1_1 = {};
+		obj1_1.trace_x = positive_part_f;
+		obj1_1.trace_y = positive_part_phase;
+		obj1_1.title_text = "Phase frequency response (deg)";
+		obj1_1.x_text_trace = "Frequency";
+		obj1_1.y_text_trace = "Phase (deg)";
+		obj1_1.unique_div_name = "freq3";
+		await plotly_line_chart(obj1_1);
+	}
 	
 	// --------------------
 	
@@ -272,7 +290,7 @@ async function plotly_line_subplot(obj) {
 
 	// Create a new div element to display data on
 	const div = document.createElement('div');
-	div.id = "data_display"+obj.str_num;
+	div.id = "data_display" + "_" + obj.unique_div_name;
 	div.style = "display:block; text-align: left; width: 600px; height: 600px";
 	document.getElementById("data_display_container").appendChild(div);
 	
@@ -288,7 +306,7 @@ async function plotly_line_chart(obj) {
 
 	// Create a new div element to display data on
 	const div = document.createElement('div');
-	div.id = "data_display"+obj.str_num;
+	div.id = "data_display" + "_" + obj.unique_div_name;
 	div.style = "display:block; text-align: left; width: 600px; height: 600px";
 	document.getElementById("data_display_container").appendChild(div);
 	
