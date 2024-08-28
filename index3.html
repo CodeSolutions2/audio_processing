@@ -449,17 +449,18 @@ async function audio_to_spectrogram() {
 	// --------------------
 
 	// Normalize values from 0 to 1
-	var spectrogram_timeWidth_freqHeight_normalized = [];
-	for (var i=0; i<spectrogram_timeWidth_freqHeight.length; i++) {
-		var col = spectrogram_timeWidth_freqHeight.at(i).map((val, ind) => { return val/max_freq; });
-		spectrogram_timeWidth_freqHeight_normalized.push(col);
-	}
-	console.log('spectrogram_timeWidth_freqHeight_normalized: ', spectrogram_timeWidth_freqHeight_normalized);
+	// var spectrogram_timeWidth_freqHeight_normalized = [];
+	// for (var i=0; i<spectrogram_timeWidth_freqHeight.length; i++) {
+	// 	var col = spectrogram_timeWidth_freqHeight.at(i).map((val, ind) => { return val/max_freq; });
+	// 	spectrogram_timeWidth_freqHeight_normalized.push(col);
+	// }
+	// console.log('spectrogram_timeWidth_freqHeight_normalized: ', spectrogram_timeWidth_freqHeight_normalized);
 
 	// --------------------
 
-	// spec_width_height should be 2D (width=time, height=frequency), so convert to 2Dtensor 
-	const spec_width_height2d = await tf.tensor2d(spectrogram_timeWidth_freqHeight_normalized);
+	// spec_width_height should be 2D (width=time, height=frequency), so convert to 2Dtensor
+	const spec_width_height2d = await tf.tensor2d(spectrogram_timeWidth_freqHeight);
+	// const spec_width_height2d = await tf.tensor2d(spectrogram_timeWidth_freqHeight_normalized);
 	
   	// Transpose 
 	const spec_height_width2d = await tf.transpose(spec_width_height2d);
@@ -489,8 +490,9 @@ async function audio_to_spectrogram() {
 	var data = [
 	  {
 	    z: jsArray_2d,
-	    // x: plot_width_time,
+	    x: plot_width_time,
 	    // y: y_freq_normalized,
+	    y: undefined,
 	    type: 'heatmap',
 	    hoverongaps: false
 	  }
@@ -520,11 +522,11 @@ async function array_to_histogram(arr) {
 	// Bin the signal 
 	var bin = 4;	// Need to know how many bins to divide each array, tensorflow.js did bin=2
 	var histogram = [];
-	var out = arr.at(0); // initialize
+	var out = arr_integer.at(0); // initialize
 	
-	for (var i=0; i<arr.length; i++) {
+	for (var i=0; i<arr_integer.length; i++) {
 		if (i % bin == 0) {
-			out = arr[i];
+			out = arr_integer[i];
 		}
 		histogram.push(out);
 	}
