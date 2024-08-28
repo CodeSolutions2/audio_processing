@@ -182,12 +182,10 @@ async function audio_to_frequency_domain() {
 	
 	// --------------------
 
-	var which_freq_plot = "subplot"; // "individual_plots"
+	var which_freq_plot = "none"; // "subplot", "individual_plots", "none"
 
-	// --------------------
-
-	if (which_freq_plot == "subplot") {
-		// Plot both the [negative, positive] parts of the frequency response in hertz
+	// Plot both the [negative, positive] parts of the frequency response in hertz
+	if (which_freq_plot === "subplot") {
 		const obj0 = {};
 		obj0.title_text = "[negative, positive] parts of the frequency response in correct order: Hz";
 		obj0.x_text_trace0 = "Frequency";
@@ -201,7 +199,7 @@ async function audio_to_frequency_domain() {
 		obj1.unique_div_name = "subplot_freq0";
 		await plotly_line_subplot(obj0);
 		
-	} else if (which_freq_plot == "individual_plots") {
+	} else if (which_freq_plot === "individual_plots") {
 	
 		// Trace 0
 		const obj0_0 = {};
@@ -225,6 +223,48 @@ async function audio_to_frequency_domain() {
   	}
 	
 	// --------------------
+
+	which_freq_plot = "subplot"; // "subplot", "individual_plots", "none"
+
+	// Plot only positive part of frequency response in Hz
+	if (which_freq_plot === "subplot") {
+		const obj1 = {};
+		obj1.title_text = "[positive] part of the frequency response (Hz)";
+		obj1.x_text_trace0 = "Frequency";
+		obj1.y_text_trace0 = "Magnitude (Hz)";
+		obj1.x_text_trace1 = "Frequency";
+		obj1.y_text_trace1 = "Phase (deg)";
+		obj1.trace0_x = positive_part_f;
+		obj1.trace0_y = positive_part_mag;
+		obj1.trace1_x = positive_part_f;
+		obj1.trace1_y = positive_part_phase;
+		obj1.unique_div_name = "subplot_freq1";
+		await plotly_line_subplot(obj1);  // It plots them incorrectly on the same plot instead of a subplot
+	
+	} else if (which_freq_plot === "individual_plots") {
+		
+		// Trace 0
+		const obj1_0 = {};
+		obj1_0.trace_x = positive_part_f;
+		obj1_0.trace_y = positive_part_mag;
+		obj1_0.title_text = "[positive] part: Magnitude frequency response (Hz)";
+		obj1_0.x_text_trace = "Frequency";
+		obj1_0.y_text_trace = "Magnitude (Hz)";
+		obj1_0.unique_div_name = "freq2";
+		await plotly_line_chart(obj1_0);
+		
+		// Trace 1
+		const obj1_1 = {};
+		obj1_1.trace_x = positive_part_f;
+		obj1_1.trace_y = positive_part_phase;
+		obj1_1.title_text = "[positive] part: Phase frequency response (deg)";
+		obj1_1.x_text_trace = "Frequency";
+		obj1_1.y_text_trace = "Phase (deg)";
+		obj1_1.unique_div_name = "freq3";
+		await plotly_line_chart(obj1_1);
+	}
+	
+	// --------------------
   
 	// Put the frequency response in the correct order : fft gives the result on a circle but mapped to a line it gives the negative part first and then the positive part. Only select the positive part.
 	const Xn_mag_positive_part_db = positive_part_mag.map((val, ind) => { return 20 * Math.log10(val); });
@@ -237,43 +277,45 @@ async function audio_to_frequency_domain() {
 	console.log("positive_part_f.length: ", positive_part_f.length);
 	
 	// --------------------
+
+	which_freq_plot = "subplot"; // "subplot", "individual_plots", "none"
 	
 	// Plot only positive part of frequency response in decibels
-	if (which_freq_plot == "subplot") {
-		const obj1 = {};
-		obj1.title_text = "Frequency response in decibels: dB";
-		obj1.x_text_trace0 = "Frequency";
-		obj1.y_text_trace0 = "Magnitude (dB)";
-		obj1.x_text_trace1 = "Frequency";
-		obj1.y_text_trace1 = "Phase (deg)";
-		obj1.trace0_x = positive_part_f;
-		obj1.trace0_y = Xn_mag_positive_part_db;
-		obj1.trace1_x = positive_part_f;
-		obj1.trace1_y = positive_part_phase;
-		obj1.unique_div_name = "subplot_freq1";
-		await plotly_line_subplot(obj1);  // It plots them incorrectly on the same plot instead of a subplot
+	if (which_freq_plot === "subplot") {
+		const obj2 = {};
+		obj2.title_text = "Frequency response in decibels: dB";
+		obj2.x_text_trace0 = "Frequency";
+		obj2.y_text_trace0 = "Magnitude (dB)";
+		obj2.x_text_trace1 = "Frequency";
+		obj2.y_text_trace1 = "Phase (deg)";
+		obj2.trace0_x = positive_part_f;
+		obj2.trace0_y = Xn_mag_positive_part_db;
+		obj2.trace1_x = positive_part_f;
+		obj2.trace1_y = positive_part_phase;
+		obj2.unique_div_name = "subplot_freq2";
+		await plotly_line_subplot(obj2);  // It plots them incorrectly on the same plot instead of a subplot
 	
-	} else if (which_freq_plot == "individual_plots") {
+	} else if (which_freq_plot === "individual_plots") {
 		
 		// Trace 0
-		const obj1_0 = {};
-		obj1_0.trace_x = positive_part_f;
-		obj1_0.trace_y = Xn_mag_positive_part_db;
-		obj1_0.title_text = "Magnitude frequency response (decibels: dB)";
-		obj1_0.x_text_trace = "Frequency";
-		obj1_0.y_text_trace = "Magnitude (dB)";
-		obj1_0.unique_div_name = "freq2";
-		await plotly_line_chart(obj1_0);
+		const obj2_0 = {};
+		obj2_0.trace_x = positive_part_f;
+		obj2_0.trace_y = Xn_mag_positive_part_db;
+		obj2_0.title_text = "Magnitude frequency response (decibels: dB)";
+		obj2_0.x_text_trace = "Frequency";
+		obj2_0.y_text_trace = "Magnitude (dB)";
+		obj2_0.unique_div_name = "freq4";
+		await plotly_line_chart(obj2_0);
 		
 		// Trace 1
-		const obj1_1 = {};
-		obj1_1.trace_x = positive_part_f;
-		obj1_1.trace_y = positive_part_phase;
-		obj1_1.title_text = "Phase frequency response (deg)";
-		obj1_1.x_text_trace = "Frequency";
-		obj1_1.y_text_trace = "Phase (deg)";
-		obj1_1.unique_div_name = "freq3";
-		await plotly_line_chart(obj1_1);
+		const obj2_1 = {};
+		obj2_1.trace_x = positive_part_f;
+		obj2_1.trace_y = positive_part_phase;
+		obj2_1.title_text = "Phase frequency response (deg)";
+		obj2_1.x_text_trace = "Frequency";
+		obj2_1.y_text_trace = "Phase (deg)";
+		obj2_1.unique_div_name = "freq5";
+		await plotly_line_chart(obj2_1);
 	}
 	
 	// --------------------
@@ -324,16 +366,14 @@ async function audio_to_spectrogram() {
 	// Spectrogram is x (time) by y (frequency), so chunk the time series and then compute the FFT per [time series chunk]
 	
 	// Try to make up a reasonable time chuck for the length of time series data
-  const num_of_timeBins = 10;
-	const timeBin_length = await Math.floor(x_avg.length/num_of_timeBins); // make each time series chunk a 10% of the data length
-	console.log('timeBin_length : ', timeBin_length);
+	const num_of_timeBins = 10;
+	const length_of_each_timeBin = await Math.floor(x_avg.length/num_of_timeBins); // make each time series chunk a 10% of the data length
+	console.log('length_of_each_timeBin : ', length_of_each_timeBin);
 
 	
 	// Calculate spectrogram
 	var frameLength = 255;  // fftSize or nfft, Length of each window/frame segment - frequency data will be binned by nfft/2 
 	var frameStep = 128;  // The number of samples to shift between frames.
-	var fftLength = 2 * timeBin_length/255 - 128; // The length of the FFT used for the STFT.
-	console.log('fftLength : ', fftLength);
 	// var windowFn = tf.signal.hann_window; // The window function to apply to each frame before computing the FFT; to smooth the data
 
 	
@@ -342,30 +382,71 @@ async function audio_to_spectrogram() {
 	// For plotting
 	var plot_width_time = [];
 	var max_freq = 0;
-	var batch_size = 1;
+
+	var num_of_times_to_slide = (2 * length_of_each_timeBin/frameLength) - frameStep;
+	console.log('num_of_times_to_slide : ', num_of_times_to_slide);
 	
 	for (var width=0; width<num_of_timeBins-1; width++) {
     
-		var start = width * timeBin_length;
-		var x_time_chunk = await x_avg.slice(start, start+timeBin_length);
+		var start = width * length_of_each_timeBin;
+		var x_time_chunk = await x_avg.slice(start, start+length_of_each_timeBin);
 		console.log('x_time_chunk : ', x_time_chunk);
 
 		plot_width_time.push(width);
+
+		// --------------------
 		
 		// Convert the [waveform chunk] to a spectrogram using the Short-Time Fourier Transform (STFT)
-	  	// var spectrogram_height = await tf.signal.stft(x_time_chunk, frameLength, frameStep, fftLength, windowFn);
-		const spectrogram_batchSize_height = await tf.signal.stft(x_time_chunk, frameLength, frameStep);
+		// var fftLength = x_time_chunk.length; // The length of the FFT used for the STFT.
+	  	// var spectrogram_height = await tf.signal.stft(x_time_chunk, frameLength, frameStep, fftLength, windowFn);	
+		// var spectrogram_batchSize_height = await tf.signal.stft(x_time_chunk, frameLength, frameStep);
 		// console.log('spectrogram_batchSize_height : ', spectrogram_batchSize_height);
 		// dtype: "complex64"
 		// shape: Array [ 0, 129 ] which corresponds to [batch_size, height=frequency]
 		// strides: Array [ 129 ]
-	
+
 		// Obtain the magnitude of the STFT (dtype: "float32")
-		const spectrogram_mag_batchSize_height = await tf.abs(spectrogram_batchSize_height);
-		console.log('spectrogram_mag_batchSize_height : ', spectrogram_mag_batchSize_height);
+		// const spectrogram_mag_batchSize_height = await tf.abs(spectrogram_batchSize_height);
+		// console.log('spectrogram_mag_batchSize_height : ', spectrogram_mag_batchSize_height);
 		// dtype: "float32"
 		// shape: Array [0, 129]
 		// strides: Array [ 129 ]
+
+		// OR
+		
+		var spectrogram_batchSize_height = [];
+		for (var i=0; i<num_of_times_to_slide; i++) {
+			var st = i * frameStep;
+			var stop = st + frameLength;
+			var batch_x_time_chunk = x_time_chunk.slice(st, stop);
+			await tensorflow_FFT(batch_x_time_chunk);
+			// Compute frequency response/domain
+			var freq_response = await tensorflow_FFT(x_avg);
+			console.log('freq_response : ', freq_response);
+			
+			// --------------------
+		
+			// Magnitude of frequency response
+			var Xn_mag = tf.real(freq_response).abs();
+			console.log('Xn_mag : ', Xn_mag);
+
+			// Convert to JavaScript
+			Xn_mag = Xn_mag.arraySync()[0];  // arraySync creates an array in an array
+			const positive_part_mag = Xn_mag.slice(0, Math.floor(Xn_mag.length/2));
+			
+			// Need to obtain a scalar value (try the sum of all values)
+			var Xn_pos_mag_sum = positive_part_mag.reduce((acc, val) => acc + val, 0);
+
+			// --------------------
+			
+			spectrogram_batchSize_height.push(Xn_pos_mag_sum);
+
+			// --------------------
+		}
+		
+		// Flatten array to remove the batchSize or [number of convolutional slides of FFT evaluation] 
+		const spectrogram_height = (spectrogram_batchSize_height) => [].concat.apply([], spectrogram_batchSize_height.map((a) => (Array.isArray(a) ? flat(a):a)));
+		console.log('spectrogram_height: ', spectrogram_height);
 
 		// Remove 0th dimension from [batch_size, height=frequency]
 		// Try 0
@@ -386,12 +467,12 @@ async function audio_to_spectrogram() {
 		// const jsArray = await spectrogram_mag_batchSize_height.arraySync()[0];  // arraySync creates an array in an array
 		// undefined
 		// OR
-		const jsArray = await spectrogram_mag_batchSize_height.dataSync();
-		console.log('jsArray: ', jsArray);
+		// const jsArray = await spectrogram_mag_batchSize_height.dataSync();
+		// console.log('jsArray: ', jsArray);
 
 		
 		// Try 3: index values to a javascript array
-		console.log('spectrogram_mag_batchSize_height.shape.at(1) : ', spectrogram_mag_batchSize_height.shape.at(1)); // 129
+		// console.log('spectrogram_mag_batchSize_height.shape.at(1) : ', spectrogram_mag_batchSize_height.shape.at(1)); // 129
 		
 		// const spectrogram_mag_height_js = Array.from({ length: spectrogram_mag_batchSize_height.shape.at(1) }, (_, i) => spectrogram_mag_batchSize_height[0][i]);
 		
