@@ -9,7 +9,7 @@
 
 <button id="audio_to_spectrogram" onclick="audio_to_spectrogram()" style="display:block;">audio_to_spectrogram</button>
   
-<div id="data_display_area"></div>
+<div id="data_display_container"></div>
 
 
  
@@ -274,7 +274,7 @@ async function plotly_line_subplot(obj) {
 	const div = document.createElement('div');
 	div.id = "data_display"+obj.str_num;
 	div.style = "display:block; text-align: left; width: 600px; height: 600px";
-	document.getElementById("data_display_area").appendChild(div)
+	document.getElementById("data_display_container").appendChild(div);
 	
 	Plotly.newPlot(div.id, data, layout);
 }
@@ -285,7 +285,14 @@ async function plotly_line_chart(obj) {
 	
         const trace_items = { x: obj.trace_x, y: obj.trace_y, type: 'line' };
         const layout = {title: obj.title_text, xaxis: {title: obj.x_text_trace}, yaxis: {title: obj.y_text_trace} };
-        Plotly.newPlot("data_display", [trace_items], layout);
+
+	// Create a new div element to display data on
+	const div = document.createElement('div');
+	div.id = "data_display"+obj.str_num;
+	div.style = "display:block; text-align: left; width: 600px; height: 600px";
+	document.getElementById("data_display_container").appendChild(div);
+	
+        Plotly.newPlot(div.id, [trace_items], layout);
 }
 
 // -----------------------------------------------
@@ -428,7 +435,7 @@ async function plot_line_graph_dataObject(x, y, title_text) {
 
 	const margin = {top: 20, right: 30, bottom: 30, left: 40};
 	
-        const svg = d3.select("#data_display")
+        const svg = d3.select("#data_display_container")
 		.append("svg")
 		.attr("class", 'line')
 		.attr("width", width)
@@ -514,7 +521,7 @@ async function create_dynamic_canvasElement(w) {
 	}
 	
 	// Add the canvas to the document body or any other desired element
-	document.getElementById('data_display').appendChild(canvasElement);
+	document.getElementById('data_display_container').appendChild(canvasElement);
 
 	return ctx;
 }
@@ -567,7 +574,7 @@ async function load_audio_from_url(url, mode="nocors") {
   
 	// audioElement.appendChild(sourceElement);
 	
-	document.getElementById('data_display').appendChild(audioElement);
+	document.getElementById('data_display_container').appendChild(audioElement);
 
 	return audioElement;
 }
