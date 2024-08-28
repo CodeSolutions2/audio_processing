@@ -146,56 +146,113 @@ async function audio_to_frequency_domain() {
 	const negative_part_mag = Xn_mag.slice(Math.floor(N/2), N);
 	const positive_part_mag = Xn_mag.slice(0, Math.floor(N/2));
 	const Xn_mag_correct_order = negative_part_mag.concat(positive_part_mag);
-	console.log("Xn_mag_correct_order.length: ", Xn_mag_correct_order.length);
 
 	// Phase
 	const negative_part_phase = Xn_phase.slice(Math.floor(N/2), N);
 	const positive_part_phase = Xn_phase.slice(0, Math.floor(N/2));
 	const Xn_phase_correct_order = negative_part_phase.concat(positive_part_phase);
-	console.log("Xn_phase_correct_order.length: ", Xn_phase_correct_order.length);
 
 	// frequency
 	const positive_part_f = f.slice(0, Math.floor(N/2));
 	const negative_part_f = positive_part_f.reverse();
 
+	// --------------------
+	
 	// remove last value, the zero
 	negative_part_f.pop();
 	var f_correct_order = negative_part_f.concat(positive_part_f);
-
+	
 	// Add one value on the end to make f the same length as magnitude and phase
 	f_correct_order = f_correct_order.concat((2 * Math.PI * N/2)/N); // it reduces to PI, but for clarity of how it is obtained the entire equation is written
+
+	// --------------------
+
+	// Verify the length of signals
+	console.log("Xn_mag_correct_order.length: ", Xn_mag_correct_order.length);
+	console.log("Xn_phase_correct_order.length: ", Xn_phase_correct_order.length);
 	console.log("f_correct_order.length: ", f_correct_order.length);
+	
+	// --------------------
 
 	// Plot both the [negative, positive] parts of the frequency response in hertz
-	const obj0 = {};
-	obj0.title_text = "Frequency response in correct order: Hz";
-	obj0.x_text_trace0 = "Frequency";
-	obj0.y_text_trace0 = "Magnitude (Hz)";
-	obj0.x_text_trace1 = "Frequency";
-	obj0.y_text_trace1 = "Phase (deg)";
-	obj0.trace0_x = f_correct_order;
-	obj0.trace0_y = Xn_mag_correct_order;
-	obj0.trace1_x = f_correct_order;
-	obj0.trace1_y = Xn_phase_correct_order
-	await plotly_line_subplot(obj0);
+	// const obj0 = {};
+	// obj0.title_text = "Frequency response in correct order: Hz";
+	// obj0.x_text_trace0 = "Frequency";
+	// obj0.y_text_trace0 = "Magnitude (Hz)";
+	// obj0.x_text_trace1 = "Frequency";
+	// obj0.y_text_trace1 = "Phase (deg)";
+	// obj0.trace0_x = f_correct_order;
+	// obj0.trace0_y = Xn_mag_correct_order;
+	// obj0.trace1_x = f_correct_order;
+	// obj0.trace1_y = Xn_phase_correct_order
+	// await plotly_line_subplot(obj0);
+
+	// OR
+	
+	// Trace 0
+	const obj0_0 = {};
+	obj0_0.trace_x = f_correct_order;
+	obj0_0.trace_y = Xn_mag_correct_order;
+	obj0_0.title_text = "Magnitude frequency response (Hz)";
+	obj0_0.x_text_trace = "Frequency";
+	obj0_0.y_text_trace = "Magnitude (Hz)";
+	await plotly_line_chart(obj0_0);
+	
+	// Trace 1
+	const obj0_1 = {};
+	obj0_1.trace_x = f_correct_order;
+	obj0_1.trace_y = Xn_phase_correct_order;
+	obj0_1.title_text = "Phase frequency response (deg)";
+	obj0_1.x_text_trace = "Frequency";
+	obj0_1.y_text_trace = "Phase (deg)";
+	await plotly_line_chart(obj0_1);
   
 	// --------------------
   
 	// Put the frequency response in the correct order : fft gives the result on a circle but mapped to a line it gives the negative part first and then the positive part. Only select the positive part.
 	const Xn_mag_positive_part_db = positive_part_mag.map((val, ind) => { return 20 * Math.log10(val); });
 
+	// --------------------
+	
+	// Verify the length of signals
+	console.log("Xn_mag_positive_part_db.length: ", Xn_mag_positive_part_db.length);
+	console.log("positive_part_phase.length: ", positive_part_phase.length);
+	console.log("positive_part_f.length: ", positive_part_f.length);
+	
+	// --------------------
+	
 	// Plot only positive part of frequency response in decibels
-	const obj1 = {};
-	obj1.title_text = "Frequency response in decibels: dB";
-	obj1.x_text_trace0 = "Frequency";
-	obj1.y_text_trace0 = "Magnitude (dB)";
-	obj1.x_text_trace1 = "Frequency";
-	obj1.y_text_trace1 = "Phase (deg)";
-	obj1.trace0_x = positive_part_f;
-	obj1.trace0_y = Xn_mag_positive_part_db;
-	obj1.trace1_x = positive_part_f;
-	obj1.trace1_y = positive_part_phase
-	await plotly_line_subplot(obj1);
+	// const obj1 = {};
+	// obj1.title_text = "Frequency response in decibels: dB";
+	// obj1.x_text_trace0 = "Frequency";
+	// obj1.y_text_trace0 = "Magnitude (dB)";
+	// obj1.x_text_trace1 = "Frequency";
+	// obj1.y_text_trace1 = "Phase (deg)";
+	// obj1.trace0_x = positive_part_f;
+	// obj1.trace0_y = Xn_mag_positive_part_db;
+	// obj1.trace1_x = positive_part_f;
+	// obj1.trace1_y = positive_part_phase;
+	// await plotly_line_subplot(obj1);  // It plots them incorrectly on the same plot instead of a subplot
+	
+	// OR
+	
+	// Trace 0
+	const obj1_0 = {};
+	obj1_0.trace_x = positive_part_f;
+	obj1_0.trace_y = Xn_mag_positive_part_db;
+	obj1_0.title_text = "Magnitude frequency response (decibels: dB)";
+	obj1_0.x_text_trace = "Frequency";
+	obj1_0.y_text_trace = "Magnitude (dB)";
+	await plotly_line_chart(obj1_0);
+	
+	// Trace 1
+	const obj1_1 = {};
+	obj1_1.trace_x = positive_part_f;
+	obj1_1.trace_y = positive_part_phase;
+	obj1_1.title_text = "Phase frequency response (deg)";
+	obj1_1.x_text_trace = "Frequency";
+	obj1_1.y_text_trace = "Phase (deg)";
+	await plotly_line_chart(obj1_1);
 	
 	// --------------------
 	
@@ -210,20 +267,24 @@ async function plotly_line_subplot(obj) {
 	layout = {grid: {rows: 2, columns: 1, pattern: 'independent'}, title: obj.title_text};
 	Plotly.newPlot('data_display', data, layout);
 }
-
-	
 	
 // -----------------------------------------------
 
+async function plotly_line_chart(obj) {
 	
+        const trace_items = { x: obj.trace_x, y: obj.trace_y, type: 'line' };
+        const layout = {title: obj.title_text, xaxis: {title: obj.x_text_trace}, yaxis: {title: obj.y_text_trace} };
+        Plotly.newPlot("data_display", [trace_items], layout);
+}
+
+// -----------------------------------------------
+
 async function audio_to_spectrogram() {
 	
 	const [t1, x_avg] = await audio_to_timeseries();
 	
 	// --------------------
 	
-	
-
 	// Spectrogram is x (time) by y (frequency), so chunk the time series and then compute the FFT per [time series chunk]
 	
 	// Try to make up a reasonable time chuck for the length of time series data
@@ -286,7 +347,10 @@ async function audio_to_spectrogram() {
 		// console.log('Try 0: ', spectrogram_mag_batchSize_height[0]);  // undefined
 
 		// Convert to JavaScript array, to pack into a JavaScript array
-		const jsArray = await spectrogram_mag_batchSize_height.arraySync()[0];  // arraySync creates an array in an array
+		// const jsArray = await spectrogram_mag_batchSize_height.arraySync()[0];  // arraySync creates an array in an array
+		// undefined
+		// OR
+		const jsArray = await spectrogram_mag_batchSize_height.dataSync();
 		console.log('jsArray: ', jsArray);
 
 		
@@ -297,16 +361,14 @@ async function audio_to_spectrogram() {
 		
 		// console.log('spectrogram_mag_height_js : ', spectrogram_mag_height_js);
 
-
-		// It will stop here
 		
 
 		// Keep track of maximum value of frequency, to make frequency plot axis
-		if (Math.max(jsArray) > max_freq) {
-			max_freq = cur_max_fres;
-		}
+		// if (Math.max(jsArray) > max_freq) {
+		// 	max_freq = cur_max_fres;
+		// }
 
-		spec_width_height.push(jsArray);
+		// spec_width_height.push(jsArray);
 	}
 
 
@@ -328,15 +390,6 @@ async function audio_to_spectrogram() {
 
 
 
-async function plotly_line_chart(x, y, title_text, x_text, y_text) {
-        // https://plotly.com/javascript/getting-started/
-	const xValue = [...Array(x.length).keys()].map((x) => x);
-	var yValue = y;
-	
-        const trace_items = { x: xValue, y: yValue, mode: 'markers', type: 'line' };
-        const layout = {title: title_text, xaxis: {title: x_text}, yaxis: {title: y_text} };
-        Plotly.newPlot("data_display", [trace_items], layout );
-}
 
 // -----------------------------------------------
 	
