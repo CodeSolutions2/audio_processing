@@ -379,8 +379,8 @@ async function audio_to_spectrogram() {
 
 	// --------------------
 
-	var num_of_nonOverlapingBatches = Math.floor(length_of_each_timeBin/frameLength);
-  	var num_of_times_to_slide = 2*num_of_nonOverlapingBatches - 1;
+	var num_of_nonOverlapingBatches = Math.floor(x_avg.length/frameLength);
+  	var num_of_times_to_slide = 2*num_of_nonOverlapingBatches - 1; // the minus one removes the [last batch value starting from x_avg.length-frameStep] 
 	console.log('num_of_times_to_slide : ', num_of_times_to_slide);
 
 	// --------------------
