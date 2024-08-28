@@ -427,11 +427,14 @@ async function audio_to_spectrogram() {
 
 		var freq_histogram = await array_to_histogram(positive_part_mag);
 		// freq_histogram will have length positive_part_mag, which is [frameLength/2 or nfft/2]
+		console.log('freq_histogram : ', freq_histogram);
 		
 		// --------------------
 
-		if (Math.max(freq_histogram) > max_freq) {
-			max_freq = Math.max(freq_histogram);
+		var max_freqhist = Math.max(freq_histogram);
+		console.log('max_freqhist : ', max_freqhist);
+		if (max_freqhist > max_freq) {
+			max_freq = max_freqhist;
 		}
 
 		// --------------------
