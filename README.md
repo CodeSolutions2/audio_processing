@@ -10,5 +10,5 @@ The Github organization site that is developing web applications with Tensorflow
 Click on the DEMO link above to go to the deployed GitHub pages at https://codesolutions2.github.io/audio_processing/index3.html .
 
 ## In progress
-  - A more user friendly version of the DEMO with file upload url input   
+  - A more user friendly version of the DEMO (ie: more organized UI, file upload and url fetch input, progress bar)   
   - Audio-to-text Tensorflow.js model training and prediction  
