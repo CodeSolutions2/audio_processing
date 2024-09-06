@@ -3,10 +3,24 @@
 <head></head>
 <body>
 
-<button id="audio_to_timeseries" onclick="audio_to_timeseries()" style="display:block;">audio_to_timeseries</button>
-	
-<button id="audio_to_frequency_domain" onclick="audio_to_frequency_domain()" style="display:block;">audio_to_frequency_domain</button>
+<h1>Audio processing basics webapp</h1>
+<ol type="A">
+	<li>Enter the url of an audio file.</li>
+	<li>View timeseries, frequency, or spectrogram of audio signal.</li>
+</ol>
 
+
+<h3>A. Select audio (url or from file)</h3>
+<br>
+<p id="instructions_audio_url" style="display:none;">Enter a vaild url (ie: https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3)</p>
+<input id="audio_url" type="text" value="" placeholder="audio_url" rows="10" cols="100" style="display:block; text-align: left; width: 600px;">
+<br>
+<h3>B. Click on one of the buttons to view the respective time and/or frequency analysis</h3>
+<br>
+<button id="audio_to_timeseries" onclick="audio_to_timeseries()" style="display:block;">audio_to_timeseries</button>
+<br>
+<button id="audio_to_frequency_domain" onclick="audio_to_frequency_domain()" style="display:block;">audio_to_frequency_domain</button>
+<br>
 <button id="audio_to_spectrogram" onclick="audio_to_spectrogram()" style="display:block;">audio_to_spectrogram</button>
   
 <div id="data_display_container"></div>
@@ -32,7 +46,7 @@ var audio_information = {};
 
 async function audio_to_timeseries() {
 	
-	var url = "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3";
+	var url = document.getElementById("audio_url").value;
 
 	// Create audioElement
 	var audioElement = await load_audio_from_url(url, mode="nocors");
