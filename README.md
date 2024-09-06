@@ -6,8 +6,8 @@ This working version includes three tyeps of audio processing: time domain, freq
 
 The Github organization site that is developing web applications with Tensorflow.js is https://github.com/CodeSolutions2/audio_processing.
 
-## [Working version: DEMO](https://codesolutions2.github.io/audio_processing/index3.html)
-
+## [DEMO](https://codesolutions2.github.io/audio_processing/index3.html)
+Click on the DEMO link above to go to the deployed GitHub pages at https://codesolutions2.github.io/audio_processing/index3.html .
 
 ## In progress
   - A more user friendly version of the DEMO with file upload url input   
