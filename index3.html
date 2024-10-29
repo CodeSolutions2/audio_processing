@@ -803,7 +803,7 @@ async function obtain_array_characteristics(arr) {
 
 	var arr_char = {};
 	
-	arr_char.mu = await mean(arr);
+	arr_char.mu = await avg(arr);
 	arr_char.sigma = await std(arr);
 
 	const arr_sort = arr.sort();
@@ -815,23 +815,17 @@ async function obtain_array_characteristics(arr) {
 	
 	return arr_char;
 }
-	
-// -----------------------------------------------
-
-async function sum(arr) {
-	return arr.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-}
 
 // -----------------------------------------------
   
-async function mean(arr) {
-	return await sum(arr)/arr.length;
+async function avg(arr) {
+	return arr.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / arr.length;
 }
 
 // -----------------------------------------------
 
 async function std(arr) {
-	const mu =  await avg(arr);
+	const mu =  await arr.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / arr.length;
 	console.log('mu: ', mu);
 
 	// ------------------------
