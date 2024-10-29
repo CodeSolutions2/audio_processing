@@ -831,15 +831,24 @@ async function mean(arr) {
 // -----------------------------------------------
 
 async function std(arr) {
-	const mu =  await mean(arr);
-	// console.log('mu: ', mu);
+	const mu =  await avg(arr);
+	console.log('mu: ', mu);
 
-	var arr1 = arr.map((x) => { return x-mu; });
-	const summ = await sum(arr1);
-	// console.log('summ: ', summ);
+	// ------------------------
+	// const arr1 = await arr.map((val, ind) => { return Math.pow(val - mu, 2); });
+	// console.log('arr1: ', arr1);
 
-	const out = Math.sqrt( Math.pow(summ, 2)/arr.length );
-	// console.log('out: ', out);
+	// const variance = arr1.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / arr.length;
+	// console.log('variance: ', variance);
+
+	// OR
+
+	const variance = arr.reduce((accumulator, currentValue) => accumulator + Math.pow(currentValue - mu, 2), 0) / arr.length;
+	console.log('variance: ', variance);
+	// ------------------------
+
+	const out = await Math.sqrt( variance );
+	console.log('out: ', out);
 	
 	return out;
 }
